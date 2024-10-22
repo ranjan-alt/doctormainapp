@@ -28,7 +28,7 @@ const Navbar = () => {
       </div>
       <button
         onClick={() => logout()}
-        className="bg-primary text-white text-sm px-10 py-2 rounded-full"
+        className="bg-[#2563eb] text-white text-sm px-10 py-2 rounded-full"
       >
         Logout
       </button>

@@ -21,9 +21,9 @@ const Contact = () => {
           <p className=" text-gray-500">
             54709 Willms Station <br /> Suite 350, Washington, USA
           </p>
-          <p className=" text-gray-500">
+          {/* <p className=" text-gray-500">
             Tel: (+91) 8076868474 <br /> Email: ranjankumarsah142@gmail.com
-          </p>
+          </p> */}
           <p className=" font-semibold text-lg text-gray-600">
             CAREERS AT doctor
           </p>
