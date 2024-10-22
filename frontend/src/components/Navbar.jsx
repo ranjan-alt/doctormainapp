@@ -2,6 +2,7 @@ import React, { useContext, useState } from "react";
 import { assets } from "../assets/assets";
 import { NavLink, useNavigate } from "react-router-dom";
 import { AppContext } from "../context/AppContext";
+import logo from "../assets/logomain.png";
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -21,6 +22,7 @@ const Navbar = () => {
         onClick={() => navigate("/")}
         className="w-44 cursor-pointer"
         alt=""
+        src={logo}
       />
       <ul className="md:flex items-start gap-5 font-medium hidden">
         <NavLink to="/">
@@ -88,7 +90,7 @@ const Navbar = () => {
           } right-0 top-0 bottom-0 z-20 overflow-hidden bg-white transition-all`}
         >
           <div className="flex items-center justify-between px-5 py-6">
-            {/* <img src={assets.logo} className="w-36" alt="" /> */}
+            <img src={assets.logomain} className="w-36" alt="" />
             <img
               onClick={() => setShowMenu(false)}
               src={assets.cross_icon}
