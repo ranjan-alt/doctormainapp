@@ -4,13 +4,25 @@ import { AppContext } from "../context/AppContext";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { assets } from "../assets/assets";
+import { useReview } from "../context/ReviewContext";
+import StarRating from "../components/StarRating";
 
 const MyAppointments = () => {
   const { backendUrl, token } = useContext(AppContext);
+  const {
+    isReviewModalOpen,
+    selectedAppointment,
+    review,
+    setReview,
+    openReviewModal,
+    closeReviewModal,
+    submitReview,
+  } = useReview();
   const navigate = useNavigate();
 
   const [appointments, setAppointments] = useState([]);
   const [payment, setPayment] = useState("");
+  const [rating, setRating] = useState(0);
 
   const months = [
     "Jan",
@@ -246,6 +258,63 @@ const MyAppointments = () => {
                 <button className="sm:min-w-48 py-2 border border-red-500 rounded text-red-500">
                   Appointment cancelled
                 </button>
+              )}
+              {item.isCompleted && (
+                <button
+                  onClick={() => openReviewModal(item)} // Open the modal and set the selected appointment
+                  className="sm:min-w-48 py-2 border border-green-500 rounded text-green-500 hover:bg-green-500 hover:text-white hover:border-green-600 transition duration-300 ease-in-out"
+                >
+                  Write a Review
+                </button>
+              )}
+              {isReviewModalOpen && (
+                <div
+                  className="fixed inset-0 flex items-center justify-center bg-grey bg-opacity-50 z-50"
+                  onClick={closeReviewModal}
+                >
+                  <div
+                    className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <h2 className="text-xl font-semibold mb-4">
+                      Write a Review for {selectedAppointment.docData.name}
+                      {/* name not matching on the click which we selected the doctor  */}
+                    </h2>
+                    <StarRating rating={rating} setRating={setRating} />
+                    <textarea
+                      value={review}
+                      onChange={(e) => setReview(e.target.value)} // Handle input change
+                      className="w-full p-3 border border-gray-300 rounded-md mb-4"
+                      placeholder="Write your review here..."
+                      rows="4"
+                    ></textarea>
+                    <div className="flex justify-between">
+                      <button
+                        onClick={closeReviewModal}
+                        className="py-2 px-4 bg-red-500 text-white rounded hover:bg-red-600"
+                      >
+                        Close
+                      </button>
+                      <button
+                        onClick={() =>
+                          submitReview(
+                            selectedAppointment.docId,
+                            review,
+                            token,
+                            backendUrl,
+                            getUserAppointments,
+                            toast,
+                            item.userId,
+                            rating
+                          )
+                        }
+                        className="py-2 px-4 bg-green-500 text-white rounded hover:bg-green-600"
+                      >
+                        Submit
+                      </button>
+                    </div>
+                  </div>
+                </div>
               )}
             </div>
           </div>

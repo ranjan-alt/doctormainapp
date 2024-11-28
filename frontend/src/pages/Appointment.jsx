@@ -5,9 +5,12 @@ import { assets } from "../assets/assets";
 import RelatedDoctors from "../components/RelatedDoctors";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { useReview } from "../context/ReviewContext";
+import ReviewPage from "./ReviewPage";
 
 const Appointment = () => {
   const { docId } = useParams();
+  console.log(docId, "docId on frontend"); // i am getting docId HERE
   const { doctors, currencySymbol, backendUrl, token, getDoctosData } =
     useContext(AppContext);
   const daysOfWeek = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
@@ -16,8 +19,29 @@ const Appointment = () => {
   const [docSlots, setDocSlots] = useState([]);
   const [slotIndex, setSlotIndex] = useState(0);
   const [slotTime, setSlotTime] = useState("");
+  // const { fetchReviews, review } = useReview();
+  // const [reviews, setReviews] = useState([]);
+
+  // console.log(fetchReviews);
 
   const navigate = useNavigate();
+
+  // useEffect(() => {
+  //   if (docId) {
+  //     console.log(docId, "dooooocc");
+  //     const getReviews = async () => {
+  //       try {
+  //         const reviews = await fetchReviews(docId, backendUrl, toast);
+  //         setReviews(reviews);
+  //         console.log(reviews, "reviews received"); //undefined
+  //       } catch (error) {
+  //         console.log(error, "Error fetching reviews");
+  //       }
+  //     };
+
+  //     getReviews();
+  //   }
+  // }, [docId, backendUrl, toast]);
 
   const fetchDocInfo = async () => {
     const docInfo = doctors.find((doc) => doc._id === docId);
@@ -227,6 +251,7 @@ const Appointment = () => {
         </button>
       </div>
 
+      <ReviewPage docId={docId} backendUrl={backendUrl} />
       {/* Listing Releated Doctors */}
       <RelatedDoctors speciality={docInfo.speciality} docId={docId} />
     </div>
