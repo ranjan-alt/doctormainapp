@@ -28,9 +28,9 @@ const MedicalInsuranceList = () => {
         </div>
 
         {/* --------- Header Right --------- */}
-        <div className="md:w-1/2 relative">
+        <div className="md:w-1/2 relative h-70">
           <img
-            className="w-full md:absolute bottom-0 h-auto rounded-lg"
+            className="w-full md:absolute bottom-0 h-full rounded-lg"
             src={assets.appointment_img}
             alt="Medical Insurance"
           />
