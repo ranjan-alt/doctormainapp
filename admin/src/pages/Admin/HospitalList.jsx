@@ -9,6 +9,7 @@ const HospitalList = () => {
     saveHospitalToDB,
     saveInsuranceToDB,
     fetchHospitalTypes,
+    // handleDeleteAll,
   } = useHospitalContext();
   console.log(insuranceTypes, "insuarnce");
 
@@ -16,6 +17,7 @@ const HospitalList = () => {
   const [newHospitalName, setNewHospitalName] = useState("");
   const [newInsuranceName, setNewInsuranceName] = useState("");
   const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   // Handle adding a new hospital
   const handleAddHospital = async (e) => {
@@ -32,11 +34,17 @@ const HospitalList = () => {
       name: newHospitalName,
       insurances: selectedInsurances,
     };
-
-    await saveHospitalToDB(newHospital); // Save to DB
-    setNewHospitalName("");
-    setSelectedInsurances([]);
-    setError("");
+    try {
+      setIsLoading(true); // Set loading to true when API call starts
+      await saveHospitalToDB(newHospital); // Save to DB
+      setNewHospitalName("");
+      setSelectedInsurances([]);
+      setError("");
+    } catch (err) {
+      setError("Error saving hospital. Please try again.");
+    } finally {
+      setIsLoading(false); // Reset loading state
+    }
   };
 
   // Handle adding a new insurance type
@@ -51,10 +59,16 @@ const HospitalList = () => {
     const newInsurance = {
       name: newInsuranceName,
     };
-
-    await saveInsuranceToDB(newInsurance); // Save to DB
-    setNewInsuranceName("");
-    setError("");
+    try {
+      setIsLoading(true); // Set loading to true when API call starts
+      await saveInsuranceToDB(newInsurance); // Save to DB
+      setNewInsuranceName("");
+      setError("");
+    } catch (err) {
+      setError("Error saving insurance. Please try again.");
+    } finally {
+      setIsLoading(false); // Reset loading state
+    }
   };
 
   // Handle insurance selection for the hospital
@@ -136,9 +150,15 @@ const HospitalList = () => {
           type="submit"
           className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500"
         >
-          Add Hospital
+          {isLoading ? "Saving..." : "Add Hospital"}
         </button>
       </form>
+      {/* <button
+        onClick={handleDeleteAll}
+        className="px-6 py-3 bg-red-500 text-white rounded-md"
+      >
+        DLETE ALL
+      </button> */}
 
       {/* Form to add a new insurance type */}
       <form
@@ -171,7 +191,7 @@ const HospitalList = () => {
           type="submit"
           className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 focus:ring-2 focus:ring-green-500"
         >
-          Add Insurance
+          {isLoading ? "Saving..." : "Add Insurance"}
         </button>
       </form>
 

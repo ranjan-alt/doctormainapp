@@ -27,6 +27,8 @@ export const HospitalProvider = ({ children }) => {
       toast.error("Failed to fetch insurance types");
     }
   };
+
+  // Fetch hospital types from DB
   const fetchHospitalTypes = async () => {
     try {
       const { data } = await axios.get(`${backendUrl}/api/hospitals`);
@@ -41,11 +43,11 @@ export const HospitalProvider = ({ children }) => {
     }
   };
 
-  // Fetch the insurance types when the component mounts
+  // Fetch insurance types and hospitals on mount
   useEffect(() => {
     fetchInsuranceTypes();
     fetchHospitalTypes();
-  }, [hospitals]);
+  }, []); // Empty dependency array to fetch data only once
 
   // Function to save hospitals to DB (via API call)
   const saveHospitalToDB = async (newHospital) => {
@@ -61,8 +63,10 @@ export const HospitalProvider = ({ children }) => {
       );
 
       if (data.success) {
+        // Directly update the hospitals state without refetching
         setHospitals((prevHospitals) => [...prevHospitals, data.savedHospital]);
         toast.success("Hospital saved successfully");
+        fetchHospitalTypes();
       } else {
         toast.error(data.message);
       }
@@ -91,12 +95,24 @@ export const HospitalProvider = ({ children }) => {
           data.savedInsurance,
         ]);
         toast.success("Insurance type saved successfully");
+        fetchInsuranceTypes();
       } else {
         toast.error(data.message);
       }
     } catch (error) {
       console.error(error);
       toast.error("Failed to save insurance");
+    }
+  };
+
+  // Function to delete all hospitals
+  const handleDeleteAll = async () => {
+    try {
+      const response = await axios.delete(`${backendUrl}/api/hospitals`);
+      toast.success(response.data.message); // Use toast for success
+      setHospitals([]); // Clear the hospitals state
+    } catch (error) {
+      toast.error("Error deleting hospitals");
     }
   };
 
@@ -109,6 +125,7 @@ export const HospitalProvider = ({ children }) => {
         saveInsuranceToDB,
         fetchInsuranceTypes, // Provide the fetch function in context if needed elsewhere
         fetchHospitalTypes,
+        handleDeleteAll,
       }}
     >
       {children}
