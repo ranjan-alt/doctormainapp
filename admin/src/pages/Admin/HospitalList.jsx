@@ -1,9 +1,16 @@
 import React, { useState } from "react";
 import { useHospitalContext } from "../../context/HospitalContext";
+
 const HospitalList = () => {
   // Use context for hospitals and insurance list
-  const { hospitals, insuranceTypes, saveHospitalToDB, saveInsuranceToDB } =
-    useHospitalContext();
+  const {
+    hospitals,
+    insuranceTypes,
+    saveHospitalToDB,
+    saveInsuranceToDB,
+    fetchHospitalTypes,
+  } = useHospitalContext();
+  console.log(insuranceTypes, "insuarnce");
 
   const [selectedInsurances, setSelectedInsurances] = useState([]);
   const [newHospitalName, setNewHospitalName] = useState("");
@@ -22,7 +29,6 @@ const HospitalList = () => {
     }
 
     const newHospital = {
-      id: hospitals?.length + 1, // Use an auto-generated ID from the backend
       name: newHospitalName,
       insurances: selectedInsurances,
     };
@@ -43,7 +49,6 @@ const HospitalList = () => {
     }
 
     const newInsurance = {
-      id: insuranceTypes.length + 1, // Use an auto-generated ID from the backend
       name: newInsuranceName,
     };
 
@@ -53,13 +58,17 @@ const HospitalList = () => {
   };
 
   // Handle insurance selection for the hospital
-  const handleInsuranceChange = (event) => {
-    const value = event.target.value;
-    setSelectedInsurances((prevSelected) =>
-      prevSelected.includes(value)
-        ? prevSelected.filter((item) => item !== value)
-        : [...prevSelected, value]
-    );
+  const handleInsuranceChange = (e) => {
+    const { value, checked } = e.target;
+    setSelectedInsurances((prevState) => {
+      if (checked) {
+        // Add the insurance to the selected list if it's checked
+        return [...prevState, value];
+      } else {
+        // Remove the insurance from the selected list if it's unchecked
+        return prevState.filter((insurance) => insurance !== value);
+      }
+    });
   };
 
   return (
@@ -180,7 +189,7 @@ const HospitalList = () => {
             </tr>
           </thead>
           <tbody>
-            {hospitals?.map((hospital) => (
+            {hospitals.map((hospital) => (
               <tr key={hospital.id} className="hover:bg-gray-100">
                 <td className="px-4 py-2 text-gray-600">{hospital.name}</td>
                 <td className="px-4 py-2">
