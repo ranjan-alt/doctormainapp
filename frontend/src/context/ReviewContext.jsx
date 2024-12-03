@@ -7,7 +7,8 @@ export const ReviewProvider = ({ children }) => {
   const [isReviewModalOpen, setIsReviewModalOpen] = useState();
   const [review, setReview] = useState("");
   const [selectedAppointment, setSelectedAppointment] = useState(null);
-
+  const [reviewStats, setReviewStats] = useState(null);
+  console.log(reviewStats, "context");
   const openReviewModal = (appointment) => {
     setSelectedAppointment(appointment);
     setIsReviewModalOpen(true);
@@ -66,6 +67,21 @@ export const ReviewProvider = ({ children }) => {
     }
   };
 
+  const fetchReviewStats = async (docId, backendUrl, toast) => {
+    try {
+      const response = await axios.get(
+        `${backendUrl}/api/reviews/reviewstats/${docId}`
+      );
+      const stats = response.data; // Store the fetched stats
+      setReviewStats(stats); // Set state with the stats
+      return stats; // Ensure the data is returned for use in the component
+    } catch (error) {
+      toast.error("Error fetching review stats");
+      console.error(error);
+      return null; // Return null if there's an error
+    }
+  };
+
   return (
     <ReviewContext.Provider
       value={{
@@ -77,6 +93,7 @@ export const ReviewProvider = ({ children }) => {
         closeReviewModal,
         submitReview,
         fetchReviews,
+        fetchReviewStats,
       }}
     >
       {" "}
