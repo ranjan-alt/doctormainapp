@@ -61,7 +61,7 @@ export const ReviewProvider = ({ children }) => {
       );
       return response.data; // Ensure you return the fetched data here
     } catch (error) {
-      toast.error("Error fetching reviews");
+      // toast.error("Error fetching reviews");
       console.error(error);
       return []; // Return an empty array or handle error properly
     }
