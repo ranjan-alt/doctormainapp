@@ -10,6 +10,8 @@ const HospitalList = () => {
     saveInsuranceToDB,
     fetchHospitalTypes,
     // handleDeleteAll,
+    fetchInsuranceTypes,
+    editInsuranceInDB,
   } = useHospitalContext();
   console.log(insuranceTypes, "insuarnce");
 
@@ -18,6 +20,8 @@ const HospitalList = () => {
   const [newInsuranceName, setNewInsuranceName] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [editInsuranceId, setEditInsuranceId] = useState(null);
+  const [editInsuranceName, setEditInsuranceName] = useState("");
 
   // Handle adding a new hospital
   const handleAddHospital = async (e) => {
@@ -85,6 +89,21 @@ const HospitalList = () => {
     });
   };
 
+  const handleEditInsurance = (insuranceId, updatedName) => {
+    editInsuranceInDB(insuranceId, updatedName)
+      .then(() => {
+        fetchInsuranceTypes(); // Fetch the updated insurance types from the server
+        setEditInsuranceId(null); // Reset edit mode
+      })
+      .catch((err) => {
+        console.error("Error updating insurance:", err);
+      });
+  };
+
+  const handleDeleteInsurance = (id) => {
+    // Handle deletion logic here
+    console.log("Delete insurance with ID:", id);
+  };
   return (
     <div className="p-6 bg-gray-50 w-full">
       <h1 className="text-3xl font-semibold mb-6">Hospital List</h1>
@@ -124,7 +143,7 @@ const HospitalList = () => {
             Insurance Accepted
           </label>
           <div className="mt-2">
-            {insuranceTypes.map((insurance) => (
+            {insuranceTypes?.map((insurance) => (
               <div key={insurance.id} className="flex items-center">
                 <input
                   type="checkbox"
@@ -138,8 +157,47 @@ const HospitalList = () => {
                   htmlFor={`insurance-${insurance.id}`}
                   className="text-sm text-gray-700"
                 >
-                  {insurance.name}
+                  {editInsuranceId === insurance._id ? (
+                    <input
+                      type="text"
+                      value={editInsuranceName}
+                      onChange={(e) => setEditInsuranceName(e.target.value)}
+                      className="border rounded p-2"
+                    />
+                  ) : (
+                    insurance.name
+                  )}
                 </label>
+                {/* Edit Button */}
+                {editInsuranceId === insurance._id ? (
+                  <button
+                    onClick={() => {
+                      handleEditInsurance(insurance._id, editInsuranceName); // Send the updated insurance name to the server
+                      setEditInsuranceId(null); // Reset editing state
+                    }}
+                    className="ml-2 text-blue-500 hover:text-blue-700 text-xs"
+                  >
+                    Save
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => {
+                      setEditInsuranceId(insurance._id); // Set the insurance to be edited
+                      setEditInsuranceName(insurance.name); // Set the name in the input field
+                    }}
+                    className="ml-2 text-blue-500 hover:text-blue-700 text-xs"
+                  >
+                    Edit
+                  </button>
+                )}
+
+                {/* Delete Button */}
+                <button
+                  onClick={() => handleDeleteInsurance(insurance._id)}
+                  className="ml-2 text-red-500 hover:text-red-700 text-xs"
+                >
+                  Delete
+                </button>
               </div>
             ))}
           </div>

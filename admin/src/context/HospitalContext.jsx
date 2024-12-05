@@ -116,6 +116,36 @@ export const HospitalProvider = ({ children }) => {
     }
   };
 
+  const editInsuranceInDB = async (insuranceId, updatedName) => {
+    // TO DO: implement edit functionality
+    const { data } = await axios.put(
+      `${backendUrl}/api/insurances/edit/${insuranceId}`,
+      { name: updatedName },
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    if (data.success) {
+      setInsuranceTypes((prevInsuranceTypes) => {
+        prevInsuranceTypes.map((insurance) => {
+          insurance._id === insuranceId
+            ? { ...insurance, name: updatedName }
+            : insurance;
+        });
+      });
+      toast.success("Insurance updated successfully");
+    } else {
+      toast.error(data.message);
+    }
+    try {
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to update insurance");
+    }
+  };
+
   return (
     <HospitalContext.Provider
       value={{
@@ -126,6 +156,7 @@ export const HospitalProvider = ({ children }) => {
         fetchInsuranceTypes, // Provide the fetch function in context if needed elsewhere
         fetchHospitalTypes,
         handleDeleteAll,
+        editInsuranceInDB,
       }}
     >
       {children}
