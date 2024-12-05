@@ -76,6 +76,33 @@ export const HospitalProvider = ({ children }) => {
     }
   };
 
+  const editHospitalInDB = async (hospitalId, updatedHospitalData) => {
+    try {
+      const { data } = await axios.put(
+        `${backendUrl}/api/hospitals/edit/${hospitalId}`,
+        updatedHospitalData,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (data.success) {
+        setHospitals((prevHospitals) => {
+          prevHospitals.map((hospital) => {
+            hospital._id === hospitalId
+              ? { ...hospital, ...updatedHospitalData }
+              : hospital;
+          });
+        });
+        toast.success("Hospital updated successfully");
+      }
+    } catch (error) {
+      toast.error(data.message);
+    }
+  };
+
   // Function to save insurance types to DB (via API call)
   const saveInsuranceToDB = async (newInsurance) => {
     try {
@@ -102,17 +129,6 @@ export const HospitalProvider = ({ children }) => {
     } catch (error) {
       console.error(error);
       toast.error("Failed to save insurance");
-    }
-  };
-
-  // Function to delete all hospitals
-  const handleDeleteAll = async () => {
-    try {
-      const response = await axios.delete(`${backendUrl}/api/hospitals`);
-      toast.success(response.data.message); // Use toast for success
-      setHospitals([]); // Clear the hospitals state
-    } catch (error) {
-      toast.error("Error deleting hospitals");
     }
   };
 
@@ -146,6 +162,17 @@ export const HospitalProvider = ({ children }) => {
     }
   };
 
+  // Function to delete all hospitals
+  const handleDeleteAll = async () => {
+    try {
+      const response = await axios.delete(`${backendUrl}/api/hospitals`);
+      toast.success(response.data.message); // Use toast for success
+      setHospitals([]); // Clear the hospitals state
+    } catch (error) {
+      toast.error("Error deleting hospitals");
+    }
+  };
+
   return (
     <HospitalContext.Provider
       value={{
@@ -157,6 +184,7 @@ export const HospitalProvider = ({ children }) => {
         fetchHospitalTypes,
         handleDeleteAll,
         editInsuranceInDB,
+        editHospitalInDB,
       }}
     >
       {children}

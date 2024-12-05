@@ -8,10 +8,11 @@ const HospitalList = () => {
     insuranceTypes,
     saveHospitalToDB,
     saveInsuranceToDB,
-    fetchHospitalTypes,
     // handleDeleteAll,
     fetchInsuranceTypes,
     editInsuranceInDB,
+    fetchHospitalTypes,
+    editHospitalInDB,
   } = useHospitalContext();
   console.log(insuranceTypes, "insuarnce");
 
@@ -22,6 +23,9 @@ const HospitalList = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [editInsuranceId, setEditInsuranceId] = useState(null);
   const [editInsuranceName, setEditInsuranceName] = useState("");
+  const [editHospitalId, setEditHospitalId] = useState(null);
+  const [editHospitalName, setEditHospitalName] = useState("");
+  const [editHospitalInsurances, setEditHospitalInsurances] = useState([]);
 
   // Handle adding a new hospital
   const handleAddHospital = async (e) => {
@@ -103,6 +107,26 @@ const HospitalList = () => {
   const handleDeleteInsurance = (id) => {
     // Handle deletion logic here
     console.log("Delete insurance with ID:", id);
+  };
+
+  const handleEditHospital = (
+    hospitalId,
+    updatedHospitalName,
+    updatedInsurances
+  ) => {
+    editHospitalInDB(hospitalId, {
+      name: updatedHospitalName,
+      insurances: updatedInsurances,
+    }).then(() => {
+      fetchHospitalTypes();
+      setEditHospitalId(null);
+    });
+  };
+  const handleEditClick = (hospital) => {
+    console.log(hospital, "edit");
+    setEditHospitalId(hospital._id);
+    setEditHospitalName(hospital.name);
+    setEditHospitalInsurances(hospital.insurances);
   };
   return (
     <div className="p-6 bg-gray-50 w-full">
@@ -264,10 +288,13 @@ const HospitalList = () => {
               <th className="px-4 py-2 text-left font-medium text-gray-700">
                 Insurance Accepted
               </th>
+              <th className="px-4 py-2 text-left font-medium text-gray-700">
+                Actions
+              </th>
             </tr>
           </thead>
           <tbody>
-            {hospitals.map((hospital) => (
+            {hospitals?.map((hospital) => (
               <tr key={hospital.id} className="hover:bg-gray-100">
                 <td className="px-4 py-2 text-gray-600">{hospital.name}</td>
                 <td className="px-4 py-2">
@@ -279,11 +306,92 @@ const HospitalList = () => {
                     ))}
                   </ul>
                 </td>
+                <td className="px-4 py-2">
+                  <button
+                    onClick={() => handleEditClick(hospital)}
+                    className="ml-2 text-blue-500 hover:text-blue-700 text-xs"
+                  >
+                    Edit
+                  </button>
+                </td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
+      {editHospitalId && (
+        <div className="mt-6 bg-white p-6 border border-gray-200 rounded-lg shadow-sm w-full">
+          <h2 className="text-2xl font-medium mb-4">Edit Hospital</h2>
+          <div className="mb-4">
+            <label
+              htmlFor="editHospitalName"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Hospital Name
+            </label>
+            <input
+              type="text"
+              id="editHospitalName"
+              value={editHospitalName}
+              onChange={(e) => setEditHospitalName(e.target.value)}
+              className="w-full px-4 py-2 mt-1 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            />
+          </div>
+
+          <div className="mb-4">
+            <label
+              htmlFor="editInsurance"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Insurance Accepted
+            </label>
+            <div className="mt-2">
+              {insuranceTypes?.map((insurance) => (
+                <div key={insurance.id} className="flex items-center">
+                  <input
+                    type="checkbox"
+                    id={`edit-insurance-${insurance.id}`}
+                    value={insurance.name}
+                    checked={editHospitalInsurances.includes(insurance.name)}
+                    onChange={(e) => {
+                      const { value, checked } = e.target;
+                      setEditHospitalInsurances((prevState) => {
+                        if (checked) {
+                          return [...prevState, value];
+                        } else {
+                          return prevState.filter(
+                            (insurance) => insurance !== value
+                          );
+                        }
+                      });
+                    }}
+                    className="mr-2"
+                  />
+                  <label
+                    htmlFor={`edit-insurance-${insurance.id}`}
+                    className="text-sm text-gray-700"
+                  >
+                    {insurance.name}
+                  </label>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <button
+            onClick={() =>
+              handleEditHospital(
+                editHospitalId,
+                editHospitalName,
+                editHospitalInsurances
+              )
+            }
+            className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 focus:ring-2 focus:ring-green-500"
+          >
+            Save Changes
+          </button>
+        </div>
+      )}
     </div>
   );
 };
