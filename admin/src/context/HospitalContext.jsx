@@ -161,7 +161,23 @@ export const HospitalProvider = ({ children }) => {
       toast.error("Failed to update insurance");
     }
   };
+  const deleteInsuranceFromDB = async (insuranceId) => {
+    try {
+      const response = await fetch(
+        `${backendUrl}/api/insurances/${insuranceId}`,
+        {
+          method: "DELETE",
+        }
+      );
+      if (!response.ok) {
+        throw new Error(response.statusText);
+      }
 
+      return response.json();
+    } catch (error) {
+      console.error(error);
+    }
+  };
   // Function to delete all hospitals
   const handleDeleteAll = async () => {
     try {
@@ -185,6 +201,8 @@ export const HospitalProvider = ({ children }) => {
         handleDeleteAll,
         editInsuranceInDB,
         editHospitalInDB,
+        deleteInsuranceFromDB,
+        setInsuranceTypes,
       }}
     >
       {children}

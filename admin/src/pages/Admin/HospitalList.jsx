@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useHospitalContext } from "../../context/HospitalContext";
+import Modal from "../../components/Modals";
 
 const HospitalList = () => {
   // Use context for hospitals and insurance list
@@ -13,6 +14,8 @@ const HospitalList = () => {
     editInsuranceInDB,
     fetchHospitalTypes,
     editHospitalInDB,
+    deleteInsuranceFromDB,
+    setInsuranceTypes,
   } = useHospitalContext();
   console.log(insuranceTypes, "insuarnce");
 
@@ -26,6 +29,7 @@ const HospitalList = () => {
   const [editHospitalId, setEditHospitalId] = useState(null);
   const [editHospitalName, setEditHospitalName] = useState("");
   const [editHospitalInsurances, setEditHospitalInsurances] = useState([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Handle adding a new hospital
   const handleAddHospital = async (e) => {
@@ -45,6 +49,7 @@ const HospitalList = () => {
     try {
       setIsLoading(true); // Set loading to true when API call starts
       await saveHospitalToDB(newHospital); // Save to DB
+      fetchHospitalTypes();
       setNewHospitalName("");
       setSelectedInsurances([]);
       setError("");
@@ -70,6 +75,7 @@ const HospitalList = () => {
     try {
       setIsLoading(true); // Set loading to true when API call starts
       await saveInsuranceToDB(newInsurance); // Save to DB
+      fetchInsuranceTypes();
       setNewInsuranceName("");
       setError("");
     } catch (err) {
@@ -103,10 +109,23 @@ const HospitalList = () => {
         console.error("Error updating insurance:", err);
       });
   };
+  const handleDeleteInsurance = async (insuranceId) => {
+    setIsModalOpen(true);
+    setEditInsuranceId(insuranceId); // Store the insuranceId to delete after confirmation
+  };
 
-  const handleDeleteInsurance = (id) => {
+  const confirmDeleteInsurance = async () => {
     // Handle deletion logic here
-    console.log("Delete insurance with ID:", id);
+    const insuranceId = editInsuranceId;
+    console.log("Delete insurance with ID:", insuranceId);
+    setIsModalOpen(true);
+    await deleteInsuranceFromDB(insuranceId);
+    const updatedInsuranceTypes = insuranceTypes.filter(
+      (insuarnce) => insuarnce.id !== insuranceId
+    );
+    setInsuranceTypes(updatedInsuranceTypes);
+    fetchInsuranceTypes();
+    setIsModalOpen(false);
   };
 
   const handleEditHospital = (
@@ -226,7 +245,16 @@ const HospitalList = () => {
             ))}
           </div>
         </div>
-
+        {/* Modal Component */}
+        <Modal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          onConfirm={confirmDeleteInsurance}
+          title="Confirm Deletion"
+          message="Do you really want to delete this insurance? This action cannot be undone."
+          confirmText="Yes, Delete"
+          cancelText="No, Cancel"
+        />
         {/* Submit button */}
         <button
           type="submit"
