@@ -7,25 +7,48 @@ const Doctors = () => {
 
   const [filterDoc, setFilterDoc] = useState([]);
   const [showFilter, setShowFilter] = useState(false);
+  const [searchQuery, setSearchQuery] = useState(""); // State for search query
+
   const navigate = useNavigate();
 
   const { doctors } = useContext(AppContext);
 
   const applyFilter = () => {
+    let filteredDoctors = doctors;
     if (speciality) {
-      setFilterDoc(doctors.filter((doc) => doc.speciality === speciality));
-    } else {
-      setFilterDoc(doctors);
+      filteredDoctors = filteredDoctors.filter(
+        (doc) => doc.speciality === speciality
+      );
     }
+    // If there's a search query, filter based on it
+    if (searchQuery) {
+      filteredDoctors = filteredDoctors.filter(
+        (doc) =>
+          doc.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          doc.speciality.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+
+    setFilterDoc(filteredDoctors);
   };
 
   useEffect(() => {
     applyFilter();
-  }, [doctors, speciality]);
+  }, [doctors, speciality, searchQuery]);
 
   return (
     <div>
       <p className="text-gray-600">Browse through the doctors specialist.</p>
+      {/* Search bar */}
+      <div className="mt-5">
+        <input
+          type="text"
+          placeholder="Search doctors by name or specialty..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)} // Update searchQuery state
+          className="w-full sm:w-1/2 px-4 py-2 border border-gray-300 rounded-md focus:outline-none"
+        />
+      </div>
       <div className="flex flex-col sm:flex-row items-start gap-5 mt-5">
         <button
           onClick={() => setShowFilter(!showFilter)}
