@@ -13,9 +13,11 @@ const Appointment = () => {
   console.log(docId, "docId on frontend"); // i am getting docId HERE
   const { doctors, currencySymbol, backendUrl, token, getDoctosData } =
     useContext(AppContext);
+  console.log(doctors.slots, "slotss");
   const daysOfWeek = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
 
   const [docInfo, setDocInfo] = useState(false);
+  console.log(docInfo, "docinfo");
   const [docSlots, setDocSlots] = useState([]);
   const [slotIndex, setSlotIndex] = useState(0);
   const [slotTime, setSlotTime] = useState("");
@@ -209,8 +211,8 @@ const Appointment = () => {
       <div className="sm:ml-72 sm:pl-4 mt-8 font-medium text-[#565656]">
         <p>Booking slots</p>
         <div className="flex gap-3 items-center w-full overflow-x-scroll mt-4">
-          {docSlots.length &&
-            docSlots.map((item, index) => (
+          {docInfo.slots.length &&
+            docInfo.slots.map((slot, index) => (
               <div
                 onClick={() => setSlotIndex(index)}
                 key={index}
@@ -220,25 +222,25 @@ const Appointment = () => {
                     : "border border-[#DDDDDD]"
                 }`}
               >
-                <p>{item[0] && daysOfWeek[item[0].datetime.getDay()]}</p>
-                <p>{item[0] && item[0].datetime.getDate()}</p>
+                <p>{slot.day}</p>
+                {/* <p>{slot.time}</p> */}
               </div>
             ))}
         </div>
 
         <div className="flex items-center gap-3 w-full overflow-x-scroll mt-4">
-          {docSlots.length &&
-            docSlots[slotIndex].map((item, index) => (
+          {docInfo?.slots.length &&
+            docInfo.slots.map((item, index) => (
               <p
-                onClick={() => setSlotTime(item.time)}
+                onClick={() => setSlotTime(item.time)} // Select a time slot
                 key={index}
-                className={`text-sm font-light  flex-shrink-0 px-5 py-2 rounded-full cursor-pointer ${
+                className={`text-sm font-light flex-shrink-0 px-5 py-2 rounded-full cursor-pointer ${
                   item.time === slotTime
                     ? "bg-[#2563eb] text-white"
                     : "text-[#949494] border border-[#B4B4B4]"
                 }`}
               >
-                {item.time.toLowerCase()}
+                {item.time.toLowerCase()} {/* Display time */}
               </p>
             ))}
         </div>
