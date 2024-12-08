@@ -316,7 +316,7 @@ const Appointment = () => {
                 }`}
               >
                 <p>{slot.day}</p>
-                <p> {slot.date}</p>
+                <p className="text-xs"> {slot.date}</p>
               </div>
             ))}
         </div>

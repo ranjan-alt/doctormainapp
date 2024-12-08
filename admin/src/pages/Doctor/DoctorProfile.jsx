@@ -217,48 +217,88 @@ const DoctorProfile = () => {
 
             {/* Display and edit slots */}
             {isEdit && (
-              <div>
-                <div className="mt-4">
-                  <input
-                    type="text"
-                    value={newSlot.day}
-                    placeholder="Day"
-                    onChange={(e) =>
-                      setNewSlot((prev) => ({ ...prev, day: e.target.value }))
-                    }
-                    className="w-full p-2 border rounded"
-                  />
-                  <input
-                    type="time"
-                    value={newSlot.fromTime}
-                    placeholder="From Time"
-                    onChange={(e) =>
-                      setNewSlot((prev) => ({
-                        ...prev,
-                        fromTime: e.target.value,
-                      }))
-                    }
-                    className="w-full p-2 border rounded mt-2"
-                  />
-                  <input
-                    type="time"
-                    value={newSlot.toTime}
-                    placeholder="To Time"
-                    onChange={(e) =>
-                      setNewSlot((prev) => ({
-                        ...prev,
-                        toTime: e.target.value,
-                      }))
-                    }
-                    className="w-full p-2 border rounded mt-2"
-                  />
+              <div className="mt-4 space-y-4">
+                <div className="mt-4 flex items-center space-x-4">
+                  {/* Day Dropdown */}
+                  <div className="flex flex-col space-y-1 w-32">
+                    <label
+                      htmlFor="day"
+                      className="text-sm font-medium text-gray-700"
+                    >
+                      Select Day
+                    </label>
+                    <select
+                      id="day"
+                      value={newSlot.day}
+                      onChange={(e) =>
+                        setNewSlot((prev) => ({ ...prev, day: e.target.value }))
+                      }
+                      className="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                    >
+                      <option value="">Select Day</option>
+                      <option value="Sunday">Sunday</option>
+                      <option value="Monday">Monday</option>
+                      <option value="Tuesday">Tuesday</option>
+                      <option value="Wednesday">Wednesday</option>
+                      <option value="Thursday">Thursday</option>
+                      <option value="Friday">Friday</option>
+                      <option value="Saturday">Saturday</option>
+                    </select>
+                  </div>
+
+                  {/* From Time */}
+                  <div className="flex flex-col space-y-1 w-32">
+                    <label
+                      htmlFor="fromTime"
+                      className="text-sm font-medium text-gray-700"
+                    >
+                      From Time
+                    </label>
+                    <input
+                      type="time"
+                      id="fromTime"
+                      value={newSlot.fromTime}
+                      onChange={(e) =>
+                        setNewSlot((prev) => ({
+                          ...prev,
+                          fromTime: e.target.value,
+                        }))
+                      }
+                      className="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                    />
+                  </div>
+
+                  {/* To Time */}
+                  <div className="flex flex-col space-y-1 w-32">
+                    <label
+                      htmlFor="toTime"
+                      className="text-sm font-medium text-gray-700"
+                    >
+                      To Time
+                    </label>
+                    <input
+                      type="time"
+                      id="toTime"
+                      value={newSlot.toTime}
+                      onChange={(e) =>
+                        setNewSlot((prev) => ({
+                          ...prev,
+                          toTime: e.target.value,
+                        }))
+                      }
+                      className="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                    />
+                  </div>
+
+                  {/* Add Slot Button */}
                   <button
                     onClick={addSlot}
-                    className="bg-blue-500 text-white px-4 py-2 mt-3 rounded"
+                    className="py-2 px-4 bg-blue-500 text-white font-semibold rounded-md hover:bg-blue-600 transition duration-200 ease-in-out"
                   >
                     Add Slot
                   </button>
                 </div>
+
                 <div className="mt-4">
                   <p>Existing Slots:</p>
                   <ul>
