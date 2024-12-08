@@ -51,6 +51,28 @@ const Appointment = () => {
     setDocInfo(docInfo);
   };
 
+  const generateSlots = (fromTime, toTime) => {
+    const slots = [];
+    const [fromHours, fromMinutes] = fromTime.split(":").map(Number);
+    const [toHours, toMinutes] = toTime.split(":").map(Number);
+
+    let current = new Date();
+    current.setHours(fromHours, fromMinutes, 0, 0);
+    const end = new Date();
+    end.setHours(toHours, toMinutes, 0, 0);
+
+    while (current < end) {
+      const timeString = current.toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+      slots.push(timeString);
+      current.setMinutes(current.getMinutes() + 15);
+    }
+
+    return slots;
+  };
+
   // const getAvailableSolts = async () => {
   //   setDocSlots([]);
 
@@ -119,25 +141,44 @@ const Appointment = () => {
     if (docInfo?.slots?.length > 0) {
       docInfo.slots.forEach((slot) => {
         if (slot.day) {
-          slots.push(slot);
+          const availableSlots = generateSlots(slot.fromTime, slot.toTime);
+          slots.push({ day: slot.day, slots: availableSlots });
         }
       });
     }
     setDocSlots(slots);
   };
+
   const bookAppointment = async () => {
     if (!token) {
       toast.warning("Login to book appointment");
       return navigate("/login");
     }
 
-    const date = docSlots[slotIndex][0].datetime;
+    // Ensure we get a valid date from the available slots
+    const selectedSlot = docSlots[slotIndex]?.slots?.find(
+      (slot) => slot === selectedTime
+    );
+    // if (!selectedSlot) {
+    //   toast.error("Invalid time selected");
+    //   return;
+    // }
 
+    // Get the correct selected date
+    const date = new Date();
+    date.setDate(date.getDate() + selectedDay); // Ensure you're getting the right day index
+
+    // Set the selected time in the format "HH:mm"
+    const [hour, minute] = selectedTime.split(":");
+    date.setHours(hour, minute);
+
+    // Format the date and time for the request
     let day = date.getDate();
-    let month = date.getMonth() + 1;
+    let month = date.getMonth() + 1; // Month is zero-based
     let year = date.getFullYear();
 
-    const slotDate = day + "_" + month + "_" + year;
+    const slotDate = selectedDay;
+    const slotTime = selectedTime; // Already in HH:mm format
 
     try {
       const { data } = await axios.post(
@@ -237,33 +278,38 @@ const Appointment = () => {
                 }`}
               >
                 <p>{slot.day}</p>
+                <p>{currentDate}</p>
               </div>
             ))}
         </div>
-
         {selectedDay && (
           <div className="flex gap-3 items-center w-full overflow-x-scroll mt-4">
             {docSlots
               .filter((slot) => slot.day === selectedDay)
               .map((slot, index) => (
-                <p
-                  onClick={() => {
-                    setSelectedTime(slot.fromTime);
-                    setSlotIndex(index);
-                  }}
-                  key={index}
-                  className={`text-sm font-light flex-shrink-0 px-5 py-2 rounded-full cursor-pointer ${
-                    selectedTime === slot.fromTime
-                      ? "bg-[#2563eb] text-white"
-                      : "text-[#949494] border border-[#B4B4B4]"
-                  }`}
-                >
-                  {slot.fromTime} - {slot.toTime}
-                </p>
+                <div key={index} className="flex gap-2">
+                  {slot.slots.map((time, i) => (
+                    <span
+                      key={i}
+                      onClick={() => {
+                        setSelectedTime(time);
+                        setSlotIndex(index);
+                      }}
+                      className={`px-4 py-2 rounded-full cursor-pointer text-sm font-light flex-shrink-0 
+                ${
+                  selectedTime === time
+                    ? "bg-[#2563eb] text-white"
+                    : "text-[#949494] border border-[#B4B4B4]"
+                } 
+                hover:bg-[#2563eb] hover:text-white transition-colors`}
+                    >
+                      {time}
+                    </span>
+                  ))}
+                </div>
               ))}
           </div>
         )}
-
         <button
           onClick={bookAppointment}
           className="bg-[#2563eb] text-white text-sm font-light px-20 py-3 rounded-full my-6"
