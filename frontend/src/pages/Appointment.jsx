@@ -278,7 +278,6 @@ const Appointment = () => {
                 }`}
               >
                 <p>{slot.day}</p>
-                <p>{currentDate}</p>
               </div>
             ))}
         </div>
