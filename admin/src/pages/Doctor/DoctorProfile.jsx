@@ -9,11 +9,12 @@ const DoctorProfile = () => {
     useContext(DoctorContext);
   const { currency, backendUrl } = useContext(AppContext);
   const [isEdit, setIsEdit] = useState(false);
-  const [newSlot, setNewSlot] = useState({ day: "", time: "" });
+  const [newSlot, setNewSlot] = useState({ day: "", fromTime: "", toTime: "" });
 
   const updateProfile = async () => {
     try {
       const updateData = {
+        docId: profileData._id,
         address: profileData.address,
         fees: profileData.fees,
         about: profileData.about,
@@ -44,34 +45,56 @@ const DoctorProfile = () => {
 
   // Add new slot to profile
   const addSlot = () => {
-    if (newSlot.day && newSlot.time) {
-      // Ensure profileData.slots is an array
+    if (newSlot.day && newSlot.fromTime && newSlot.toTime) {
       const slots = profileData?.slots || [];
 
+      // Ensure the slot has the correct structure
+      const updatedSlot = {
+        day: newSlot.day,
+        fromTime: newSlot.fromTime,
+        toTime: newSlot.toTime,
+      };
+
       const isSlotExist = slots.some(
-        (slot) => slot.day === newSlot.day && slot.time === newSlot.time
+        (slot) =>
+          slot.day === newSlot.day &&
+          slot.fromTime === newSlot.fromTime &&
+          slot.toTime === newSlot.toTime
       );
+
       if (isSlotExist) {
         toast.error("Slot already exists!");
         return;
       }
-      const updatedSlots = [...slots, newSlot];
+
+      const updatedSlots = [...slots, updatedSlot];
       setProfileData((prev) => ({ ...prev, slots: updatedSlots }));
-      setNewSlot({ day: "", time: "" }); // Reset slot fields
+      setNewSlot({ day: "", fromTime: "", toTime: "" });
     } else {
       toast.error("Please provide both day and time.");
     }
   };
-
   useEffect(() => {
     if (dToken) {
       getProfileData();
+      console.log(profileData?.slots, "ranjan");
     }
+    const transformedSlots = profileData?.slots?.map((slot) => {
+      if (slot.time) {
+        return {
+          ...slot,
+          fromTime: slot.time, // Assuming the single time is the start time
+          toTime: slot.time, // You can modify this logic based on your needs
+        };
+      }
+      return slot;
+    });
+    console.log(transformedSlots);
   }, [dToken]);
 
   return (
     profileData && (
-      <div>
+      <div className="w-full">
         <div className="flex flex-col gap-4 m-5">
           <div>
             <img
@@ -206,11 +229,26 @@ const DoctorProfile = () => {
                     className="w-full p-2 border rounded"
                   />
                   <input
-                    type="text"
-                    value={newSlot.time}
-                    placeholder="Time (e.g. 10:00 AM)"
+                    type="time"
+                    value={newSlot.fromTime}
+                    placeholder="From Time"
                     onChange={(e) =>
-                      setNewSlot((prev) => ({ ...prev, time: e.target.value }))
+                      setNewSlot((prev) => ({
+                        ...prev,
+                        fromTime: e.target.value,
+                      }))
+                    }
+                    className="w-full p-2 border rounded mt-2"
+                  />
+                  <input
+                    type="time"
+                    value={newSlot.toTime}
+                    placeholder="To Time"
+                    onChange={(e) =>
+                      setNewSlot((prev) => ({
+                        ...prev,
+                        toTime: e.target.value,
+                      }))
                     }
                     className="w-full p-2 border rounded mt-2"
                   />
@@ -226,7 +264,7 @@ const DoctorProfile = () => {
                   <ul>
                     {profileData?.slots?.map((slot, index) => (
                       <li key={index}>
-                        {slot.day} - {slot.time}
+                        {slot.day} - {slot.fromTime} to {slot.toTime}
                       </li>
                     ))}
                   </ul>

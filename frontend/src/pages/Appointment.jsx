@@ -20,7 +20,8 @@ const Appointment = () => {
   console.log(docInfo, "docinfo");
   const [docSlots, setDocSlots] = useState([]);
   const [slotIndex, setSlotIndex] = useState(0);
-  const [slotTime, setSlotTime] = useState("");
+  const [selectedDay, setSelectedDay] = useState(null);
+  const [selectedTime, setSelectedTime] = useState(null);
   // const { fetchReviews, review } = useReview();
   // const [reviews, setReviews] = useState([]);
 
@@ -50,70 +51,80 @@ const Appointment = () => {
     setDocInfo(docInfo);
   };
 
-  const getAvailableSolts = async () => {
-    setDocSlots([]);
+  // const getAvailableSolts = async () => {
+  //   setDocSlots([]);
 
-    // getting current date
-    let today = new Date();
+  //   // getting current date
+  //   let today = new Date();
 
-    for (let i = 0; i < 7; i++) {
-      // getting date with index
-      let currentDate = new Date(today);
-      currentDate.setDate(today.getDate() + i);
+  //   for (let i = 0; i < 7; i++) {
+  //     // getting date with index
+  //     let currentDate = new Date(today);
+  //     currentDate.setDate(today.getDate() + i);
 
-      // setting end time of the date with index
-      let endTime = new Date();
-      endTime.setDate(today.getDate() + i);
-      endTime.setHours(21, 0, 0, 0);
+  //     // setting end time of the date with index
+  //     let endTime = new Date();
+  //     endTime.setDate(today.getDate() + i);
+  //     endTime.setHours(21, 0, 0, 0);
 
-      // setting hours
-      if (today.getDate() === currentDate.getDate()) {
-        currentDate.setHours(
-          currentDate.getHours() > 10 ? currentDate.getHours() + 1 : 10
-        );
-        currentDate.setMinutes(currentDate.getMinutes() > 30 ? 30 : 0);
-      } else {
-        currentDate.setHours(10);
-        currentDate.setMinutes(0);
-      }
+  //     // setting hours
+  //     if (today.getDate() === currentDate.getDate()) {
+  //       currentDate.setHours(
+  //         currentDate.getHours() > 10 ? currentDate.getHours() + 1 : 10
+  //       );
+  //       currentDate.setMinutes(currentDate.getMinutes() > 30 ? 30 : 0);
+  //     } else {
+  //       currentDate.setHours(10);
+  //       currentDate.setMinutes(0);
+  //     }
 
-      let timeSlots = [];
+  //     let timeSlots = [];
 
-      while (currentDate < endTime) {
-        let formattedTime = currentDate.toLocaleTimeString([], {
-          hour: "2-digit",
-          minute: "2-digit",
-        });
+  //     while (currentDate < endTime) {
+  //       let formattedTime = currentDate.toLocaleTimeString([], {
+  //         hour: "2-digit",
+  //         minute: "2-digit",
+  //       });
 
-        let day = currentDate.getDate();
-        let month = currentDate.getMonth() + 1;
-        let year = currentDate.getFullYear();
+  //       let day = currentDate.getDate();
+  //       let month = currentDate.getMonth() + 1;
+  //       let year = currentDate.getFullYear();
 
-        const slotDate = day + "_" + month + "_" + year;
-        const slotTime = formattedTime;
+  //       const slotDate = day + "_" + month + "_" + year;
+  //       const slotTime = formattedTime;
 
-        const isSlotAvailable =
-          docInfo.slots_booked[slotDate] &&
-          docInfo.slots_booked[slotDate].includes(slotTime)
-            ? false
-            : true;
+  //       const isSlotAvailable =
+  //         docInfo.slots_booked[slotDate] &&
+  //         docInfo.slots_booked[slotDate].includes(slotTime)
+  //           ? false
+  //           : true;
 
-        if (isSlotAvailable) {
-          // Add slot to array
-          timeSlots.push({
-            datetime: new Date(currentDate),
-            time: formattedTime,
-          });
+  //       if (isSlotAvailable) {
+  //         // Add slot to array
+  //         timeSlots.push({
+  //           datetime: new Date(currentDate),
+  //           time: formattedTime,
+  //         });
+  //       }
+
+  //       // Increment current time by 30 minutes
+  //       currentDate.setMinutes(currentDate.getMinutes() + 30);
+  //     }
+
+  //     setDocSlots((prev) => [...prev, timeSlots]);
+  //   }
+  // };
+  const getAvailableSlots = () => {
+    const slots = [];
+    if (docInfo?.slots?.length > 0) {
+      docInfo.slots.forEach((slot) => {
+        if (slot.day) {
+          slots.push(slot);
         }
-
-        // Increment current time by 30 minutes
-        currentDate.setMinutes(currentDate.getMinutes() + 30);
-      }
-
-      setDocSlots((prev) => [...prev, timeSlots]);
+      });
     }
+    setDocSlots(slots);
   };
-
   const bookAppointment = async () => {
     if (!token) {
       toast.warning("Login to book appointment");
@@ -155,7 +166,7 @@ const Appointment = () => {
 
   useEffect(() => {
     if (docInfo) {
-      getAvailableSolts();
+      getAvailableSlots();
     }
   }, [docInfo]);
 
@@ -209,41 +220,49 @@ const Appointment = () => {
 
       {/* Booking slots */}
       <div className="sm:ml-72 sm:pl-4 mt-8 font-medium text-[#565656]">
-        <p>Booking slots</p>
+        <p>Available Days</p>
         <div className="flex gap-3 items-center w-full overflow-x-scroll mt-4">
-          {docInfo.slots.length &&
-            docInfo.slots.map((slot, index) => (
+          {docSlots.length &&
+            docSlots.map((slot, index) => (
               <div
-                onClick={() => setSlotIndex(index)}
+                onClick={() => {
+                  setSelectedDay(slot.day);
+                  setSlotIndex(index);
+                }}
                 key={index}
                 className={`text-center py-6 min-w-16 rounded-full cursor-pointer ${
-                  slotIndex === index
+                  selectedDay === slot.day
                     ? "bg-[#2563eb] text-white"
                     : "border border-[#DDDDDD]"
                 }`}
               >
                 <p>{slot.day}</p>
-                {/* <p>{slot.time}</p> */}
               </div>
             ))}
         </div>
 
-        <div className="flex items-center gap-3 w-full overflow-x-scroll mt-4">
-          {docInfo?.slots.length &&
-            docInfo.slots.map((item, index) => (
-              <p
-                onClick={() => setSlotTime(item.time)} // Select a time slot
-                key={index}
-                className={`text-sm font-light flex-shrink-0 px-5 py-2 rounded-full cursor-pointer ${
-                  item.time === slotTime
-                    ? "bg-[#2563eb] text-white"
-                    : "text-[#949494] border border-[#B4B4B4]"
-                }`}
-              >
-                {item.time.toLowerCase()} {/* Display time */}
-              </p>
-            ))}
-        </div>
+        {selectedDay && (
+          <div className="flex gap-3 items-center w-full overflow-x-scroll mt-4">
+            {docSlots
+              .filter((slot) => slot.day === selectedDay)
+              .map((slot, index) => (
+                <p
+                  onClick={() => {
+                    setSelectedTime(slot.fromTime);
+                    setSlotIndex(index);
+                  }}
+                  key={index}
+                  className={`text-sm font-light flex-shrink-0 px-5 py-2 rounded-full cursor-pointer ${
+                    selectedTime === slot.fromTime
+                      ? "bg-[#2563eb] text-white"
+                      : "text-[#949494] border border-[#B4B4B4]"
+                  }`}
+                >
+                  {slot.fromTime} - {slot.toTime}
+                </p>
+              ))}
+          </div>
+        )}
 
         <button
           onClick={bookAppointment}
