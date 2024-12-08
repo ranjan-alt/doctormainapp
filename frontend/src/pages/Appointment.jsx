@@ -19,6 +19,7 @@ const Appointment = () => {
   const [docInfo, setDocInfo] = useState(false);
   console.log(docInfo, "docinfo");
   const [docSlots, setDocSlots] = useState([]);
+  console.log(docSlots, "doccc");
   const [slotIndex, setSlotIndex] = useState(0);
   const [selectedDay, setSelectedDay] = useState(null);
   const [selectedTime, setSelectedTime] = useState(null);
@@ -138,14 +139,51 @@ const Appointment = () => {
   // };
   const getAvailableSlots = () => {
     const slots = [];
+    const daysOfWeek = [
+      "SUNDAY",
+      "MONDAY",
+      "TUESDAY",
+      "WEDNESDAY",
+      "THURSDAY",
+      "FRIDAY",
+      "SATURDAY",
+    ];
+
+    // Get today's date and the current day
+    const today = new Date();
+    const currentDayIndex = today.getDay(); // Get the current day index (0 for Sunday, 1 for Monday, etc.)
+    const currentDay = daysOfWeek[currentDayIndex]; // Current day name (e.g., "SUNDAY")
+
+    // Calculate the date for each day of the week starting from today
+    const getDateForDay = (dayIndex) => {
+      const currentDate = new Date(today); // Copy today
+      const daysDiff = dayIndex - currentDayIndex; // Calculate the difference from today
+      currentDate.setDate(today.getDate() + daysDiff); // Add the difference in days to today
+      return currentDate;
+    };
+
+    // Loop through the slots to find available slots for each day
     if (docInfo?.slots?.length > 0) {
       docInfo.slots.forEach((slot) => {
         if (slot.day) {
+          // Get the date for the current day slot
+          const slotDayIndex = daysOfWeek.indexOf(slot.day.toUpperCase()); // Find the index of the slot's day
+          const slotDate = getDateForDay(slotDayIndex); // Calculate the actual date for the slot's day
+
+          // Generate available slots for this day
           const availableSlots = generateSlots(slot.fromTime, slot.toTime);
-          slots.push({ day: slot.day, slots: availableSlots });
+
+          // Push the slot with the day and the corresponding date
+          slots.push({
+            day: slot.day,
+            date: slotDate.toLocaleDateString(), // Format the date to a readable string
+            slots: availableSlots,
+          });
         }
       });
     }
+
+    // Set the available slots
     setDocSlots(slots);
   };
 
@@ -278,6 +316,7 @@ const Appointment = () => {
                 }`}
               >
                 <p>{slot.day}</p>
+                <p> {slot.date}</p>
               </div>
             ))}
         </div>
