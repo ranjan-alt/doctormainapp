@@ -99,6 +99,14 @@ const Doctors = () => {
 
           {/* Location Search Section */}
           <div className="flex items-center w-full">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              className="w-5 h-5 ml-3 text-slate-600  left-3 pointer-events-none"
+            >
+              <path d="M12 2C8.1 2 5 5.1 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.9-3.1-7-7-7Zm0 9.75c-1.65 0-3-1.35-3-3s1.35-3 3-3 3 1.35 3 3-1.35 3-3 3Z" />
+            </svg>
             <select
               value={locationQuery}
               onChange={(e) => setLocationQuery(e.target.value)} // Update locationQuery state
