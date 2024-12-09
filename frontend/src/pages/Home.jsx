@@ -11,7 +11,7 @@ const Home = () => {
       <Header />
       <SpecialityMenu />
       <TopDoctors />
-      <Chatbot />
+      {/* <Chatbot /> */}
       <Banner />
     </div>
   );
