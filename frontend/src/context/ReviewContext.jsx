@@ -76,7 +76,7 @@ export const ReviewProvider = ({ children }) => {
       setReviewStats(stats); // Set state with the stats
       return stats; // Ensure the data is returned for use in the component
     } catch (error) {
-      toast.error("Error fetching review stats");
+      // toast.error("Error fetching review stats");
       console.error(error);
       return null; // Return null if there's an error
     }
