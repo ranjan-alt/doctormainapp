@@ -8,11 +8,30 @@ const Doctors = () => {
   const [filterDoc, setFilterDoc] = useState([]);
   const [showFilter, setShowFilter] = useState(false);
   const [searchQuery, setSearchQuery] = useState(""); // State for search query
+  const [locationQuery, setLocationQuery] = useState("");
+  console.log(locationQuery, "12");
+  const [locations, setLocations] = useState([]);
 
   const navigate = useNavigate();
 
   const { doctors } = useContext(AppContext);
-
+  console.log(doctors, "doctorslist");
+  // Extract unique locations from the doctors list
+  useEffect(() => {
+    if (doctors.length > 0) {
+      const uniqueLocations = [
+        ...new Set(
+          doctors.map((doc) =>
+            `${doc.address?.line1 || ""}, ${doc.address?.line2 || ""}`
+              .replace(/,\s*$/, "") // Remove trailing commas
+              .trim()
+          )
+        ),
+      ];
+      console.log("Unique Locations:", locations);
+      setLocations(uniqueLocations);
+    }
+  }, [doctors]);
   const applyFilter = () => {
     let filteredDoctors = doctors;
     if (speciality) {
@@ -28,27 +47,91 @@ const Doctors = () => {
           doc.speciality.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
-
+    if (locationQuery) {
+      const normalizedQuery = locationQuery.trim().toLowerCase();
+      filteredDoctors = filteredDoctors.filter((doc) => {
+        const fullAddress = `${doc.address?.line1 || ""}, ${
+          doc.address?.line2 || ""
+        }`
+          .replace(/\s+/g, " ") // Normalize spaces
+          .replace(/,\s*$/, "") // Remove trailing commas
+          .trim()
+          .toLowerCase();
+        console.log("Filtering Address:", { fullAddress, normalizedQuery });
+        return fullAddress.includes(normalizedQuery);
+      });
+    }
     setFilterDoc(filteredDoctors);
   };
 
   useEffect(() => {
     applyFilter();
-  }, [doctors, speciality, searchQuery]);
+  }, [doctors, speciality, searchQuery, locationQuery]);
+  console.log("Filter Applied with:", {
+    speciality,
+    searchQuery,
+    locationQuery,
+  });
 
   return (
     <div>
       <p className="text-gray-600">Browse through the doctors specialist.</p>
       {/* Search bar */}
-      <div className="mt-5">
-        <input
-          type="text"
-          placeholder="Search doctors by name or specialty..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)} // Update searchQuery state
-          className="w-full sm:w-1/2 px-4 py-2 border border-gray-300 rounded-md focus:outline-none"
-        />
+      <div className="w-full max-w-lg min-w-full">
+        <div className="relative flex items-center border border-slate-200 rounded-md shadow-sm">
+          {/* Doctor Search Section */}
+          <div className="flex items-center w-full border-r border-slate-200">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              className="w-5 h-5 ml-3 text-slate-600"
+            >
+              <path d="M12 2a6 6 0 0 1 6 6 6 6 0 0 1-12 0 6 6 0 0 1 6-6Zm0 1.5A4.5 4.5 0 1 0 12 12a4.5 4.5 0 0 0 0-9Z" />
+            </svg>
+            <input
+              // value={searchQuery} // Bind to searchQuery state
+              onChange={(e) => setSearchQuery(e.target.value)} // Update searchQuery state
+              className="w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm px-3 py-2 focus:outline-none"
+              placeholder="Search for doctors..."
+            />
+          </div>
+
+          {/* Location Search Section */}
+          <div className="flex items-center w-full">
+            <select
+              value={locationQuery}
+              onChange={(e) => setLocationQuery(e.target.value)} // Update locationQuery state
+              className="w-full bg-transparent text-slate-700 text-sm px-3 py-2 focus:outline-none"
+            >
+              <option value="">Select Location</option>
+              {locations.map((loc, index) => (
+                <option key={index} value={loc}>
+                  {loc}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="flex items-center w-full">
+            <select
+              className="w-full bg-transparent text-slate-700 text-sm px-3 py-2 focus:outline-none"
+              onChange={(e) => setSearchQuery(e.target.value)} // Use searchQuery for filtering
+              value={searchQuery}
+            >
+              <option value="">Select Specialisation</option>
+
+              {[...new Set(doctors.map((doc) => doc.speciality))].map(
+                (speciality, index) => (
+                  <option key={index} value={speciality}>
+                    {speciality}
+                  </option>
+                )
+              )}
+            </select>
+          </div>
+        </div>
       </div>
+
       <div className="flex flex-col sm:flex-row items-start gap-5 mt-5">
         <button
           onClick={() => setShowFilter(!showFilter)}
