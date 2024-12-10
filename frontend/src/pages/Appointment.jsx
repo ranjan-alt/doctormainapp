@@ -149,41 +149,54 @@ const Appointment = () => {
       "SATURDAY",
     ];
 
-    // Get today's date and the current day
-    const today = new Date();
-    const currentDayIndex = today.getDay(); // Get the current day index (0 for Sunday, 1 for Monday, etc.)
-    const currentDay = daysOfWeek[currentDayIndex]; // Current day name (e.g., "SUNDAY")
+    const today = new Date(); // Current date
+    today.setHours(0, 0, 0, 0); // Reset time for consistent date comparison
 
-    // Calculate the date for each day of the week starting from today
+    const currentDayIndex = today.getDay(); // Index of the current day (0 for Sunday, etc.)
+
     const getDateForDay = (dayIndex) => {
-      const currentDate = new Date(today); // Copy today
-      const daysDiff = dayIndex - currentDayIndex; // Calculate the difference from today
-      currentDate.setDate(today.getDate() + daysDiff); // Add the difference in days to today
+      const currentDate = new Date(today); // Clone today
+      const daysDiff =
+        dayIndex >= currentDayIndex
+          ? dayIndex - currentDayIndex
+          : 7 - (currentDayIndex - dayIndex); // Adjust for wrapping around to the next week
+      currentDate.setDate(today.getDate() + daysDiff); // Adjust the date
       return currentDate;
     };
 
-    // Loop through the slots to find available slots for each day
+    // Ensure slots are generated in order: today -> remaining days of the week
     if (docInfo?.slots?.length > 0) {
-      docInfo.slots.forEach((slot) => {
-        if (slot.day) {
-          // Get the date for the current day slot
-          const slotDayIndex = daysOfWeek.indexOf(slot.day.toUpperCase()); // Find the index of the slot's day
-          const slotDate = getDateForDay(slotDayIndex); // Calculate the actual date for the slot's day
+      const orderedSlots = [...docInfo.slots].sort((a, b) => {
+        const aDayIndex = daysOfWeek.indexOf(a.day.toUpperCase());
+        const bDayIndex = daysOfWeek.indexOf(b.day.toUpperCase());
+        const normalizedADayIndex =
+          aDayIndex >= currentDayIndex
+            ? aDayIndex - currentDayIndex
+            : aDayIndex + 7 - currentDayIndex;
+        const normalizedBDayIndex =
+          bDayIndex >= currentDayIndex
+            ? bDayIndex - currentDayIndex
+            : bDayIndex + 7 - currentDayIndex;
+        return normalizedADayIndex - normalizedBDayIndex;
+      });
 
-          // Generate available slots for this day
-          const availableSlots = generateSlots(slot.fromTime, slot.toTime);
+      // Generate slots for each ordered day
+      orderedSlots.forEach((slot) => {
+        const slotDayIndex = daysOfWeek.indexOf(slot.day.toUpperCase());
+        const slotDate = getDateForDay(slotDayIndex);
 
-          // Push the slot with the day and the corresponding date
-          slots.push({
-            day: slot.day,
-            date: slotDate.toLocaleDateString(), // Format the date to a readable string
-            slots: availableSlots,
-          });
-        }
+        // Generate available slots for this day
+        const availableSlots = generateSlots(slot.fromTime, slot.toTime);
+
+        // Add the slot details
+        slots.push({
+          day: slot.day,
+          date: slotDate.toLocaleDateString(),
+          slots: availableSlots,
+        });
       });
     }
 
-    // Set the available slots
     setDocSlots(slots);
   };
 
