@@ -10,42 +10,21 @@ import ReviewPage from "./ReviewPage";
 
 const Appointment = () => {
   const { docId } = useParams();
-  console.log(docId, "docId on frontend"); // i am getting docId HERE
+
   const { doctors, currencySymbol, backendUrl, token, getDoctosData } =
     useContext(AppContext);
-  console.log(doctors.slots, "slotss");
+
   const daysOfWeek = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
 
   const [docInfo, setDocInfo] = useState(false);
-  console.log(docInfo, "docinfo");
+
   const [docSlots, setDocSlots] = useState([]);
-  console.log(docSlots, "doccc");
+
   const [slotIndex, setSlotIndex] = useState(0);
   const [selectedDay, setSelectedDay] = useState(null);
   const [selectedTime, setSelectedTime] = useState(null);
-  // const { fetchReviews, review } = useReview();
-  // const [reviews, setReviews] = useState([]);
-
-  // console.log(fetchReviews);
 
   const navigate = useNavigate();
-
-  // useEffect(() => {
-  //   if (docId) {
-  //     console.log(docId, "dooooocc");
-  //     const getReviews = async () => {
-  //       try {
-  //         const reviews = await fetchReviews(docId, backendUrl, toast);
-  //         setReviews(reviews);
-  //         console.log(reviews, "reviews received"); //undefined
-  //       } catch (error) {
-  //         console.log(error, "Error fetching reviews");
-  //       }
-  //     };
-
-  //     getReviews();
-  //   }
-  // }, [docId, backendUrl, toast]);
 
   const fetchDocInfo = async () => {
     const docInfo = doctors.find((doc) => doc._id === docId);
@@ -74,69 +53,6 @@ const Appointment = () => {
     return slots;
   };
 
-  // const getAvailableSolts = async () => {
-  //   setDocSlots([]);
-
-  //   // getting current date
-  //   let today = new Date();
-
-  //   for (let i = 0; i < 7; i++) {
-  //     // getting date with index
-  //     let currentDate = new Date(today);
-  //     currentDate.setDate(today.getDate() + i);
-
-  //     // setting end time of the date with index
-  //     let endTime = new Date();
-  //     endTime.setDate(today.getDate() + i);
-  //     endTime.setHours(21, 0, 0, 0);
-
-  //     // setting hours
-  //     if (today.getDate() === currentDate.getDate()) {
-  //       currentDate.setHours(
-  //         currentDate.getHours() > 10 ? currentDate.getHours() + 1 : 10
-  //       );
-  //       currentDate.setMinutes(currentDate.getMinutes() > 30 ? 30 : 0);
-  //     } else {
-  //       currentDate.setHours(10);
-  //       currentDate.setMinutes(0);
-  //     }
-
-  //     let timeSlots = [];
-
-  //     while (currentDate < endTime) {
-  //       let formattedTime = currentDate.toLocaleTimeString([], {
-  //         hour: "2-digit",
-  //         minute: "2-digit",
-  //       });
-
-  //       let day = currentDate.getDate();
-  //       let month = currentDate.getMonth() + 1;
-  //       let year = currentDate.getFullYear();
-
-  //       const slotDate = day + "_" + month + "_" + year;
-  //       const slotTime = formattedTime;
-
-  //       const isSlotAvailable =
-  //         docInfo.slots_booked[slotDate] &&
-  //         docInfo.slots_booked[slotDate].includes(slotTime)
-  //           ? false
-  //           : true;
-
-  //       if (isSlotAvailable) {
-  //         // Add slot to array
-  //         timeSlots.push({
-  //           datetime: new Date(currentDate),
-  //           time: formattedTime,
-  //         });
-  //       }
-
-  //       // Increment current time by 30 minutes
-  //       currentDate.setMinutes(currentDate.getMinutes() + 30);
-  //     }
-
-  //     setDocSlots((prev) => [...prev, timeSlots]);
-  //   }
-  // };
   const getAvailableSlots = () => {
     const slots = [];
     const daysOfWeek = [
