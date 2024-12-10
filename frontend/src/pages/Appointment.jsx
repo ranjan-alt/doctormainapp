@@ -164,7 +164,7 @@ const Appointment = () => {
       return currentDate;
     };
 
-    // Ensure slots are generated in order: today -> remaining days of the week
+    // Generate slots for each day in order
     if (docInfo?.slots?.length > 0) {
       const orderedSlots = [...docInfo.slots].sort((a, b) => {
         const aDayIndex = daysOfWeek.indexOf(a.day.toUpperCase());
@@ -180,13 +180,23 @@ const Appointment = () => {
         return normalizedADayIndex - normalizedBDayIndex;
       });
 
-      // Generate slots for each ordered day
       orderedSlots.forEach((slot) => {
         const slotDayIndex = daysOfWeek.indexOf(slot.day.toUpperCase());
         const slotDate = getDateForDay(slotDayIndex);
 
+        // Get booked slots for this day
+        const bookedSlots = docInfo.slots_booked?.[slot.day] || [];
+
         // Generate available slots for this day
-        const availableSlots = generateSlots(slot.fromTime, slot.toTime);
+        const availableSlots = generateSlots(slot.fromTime, slot.toTime).map(
+          (time) => {
+            const isBooked = bookedSlots.includes(time); // Check if time is booked
+            return {
+              time,
+              available: !isBooked,
+            };
+          }
+        );
 
         // Add the slot details
         slots.push({
@@ -333,34 +343,39 @@ const Appointment = () => {
               </div>
             ))}
         </div>
-        {selectedDay && (
-          <div className="flex gap-3 items-center w-full overflow-x-scroll mt-4">
-            {docSlots
+
+        <div className="flex gap-3 items-center w-full overflow-x-scroll mt-4">
+          {selectedDay &&
+            docSlots
               .filter((slot) => slot.day === selectedDay)
               .map((slot, index) => (
                 <div key={index} className="flex gap-2">
-                  {slot.slots.map((time, i) => (
+                  {slot.slots.map((slotObj, i) => (
                     <span
                       key={i}
                       onClick={() => {
-                        setSelectedTime(time);
-                        setSlotIndex(index);
+                        if (slotObj.available) {
+                          setSelectedTime(slotObj.time);
+                          setSlotIndex(index);
+                        }
                       }}
                       className={`px-4 py-2 rounded-full cursor-pointer text-sm font-light flex-shrink-0 
-                ${
-                  selectedTime === time
+              ${
+                slotObj.available
+                  ? selectedTime === slotObj.time
                     ? "bg-[#2563eb] text-white"
                     : "text-[#949494] border border-[#B4B4B4]"
-                } 
-                hover:bg-[#2563eb] hover:text-white transition-colors`}
+                  : "bg-gray-300 text-gray-500 cursor-not-allowed"
+              } 
+              ${slotObj.available ? "hover:bg-[#2563eb] hover:text-white" : ""}
+              transition-colors`}
                     >
-                      {time}
+                      {slotObj.available ? slotObj.time : "Not Available"}
                     </span>
                   ))}
                 </div>
               ))}
-          </div>
-        )}
+        </div>
         <button
           onClick={bookAppointment}
           className="bg-[#2563eb] text-white text-sm font-light px-20 py-3 rounded-full my-6"
