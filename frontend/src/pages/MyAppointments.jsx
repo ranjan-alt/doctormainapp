@@ -188,7 +188,13 @@ const MyAppointments = () => {
                 <span className="text-sm text-[#3C3C3C] font-medium">
                   Date & Time:
                 </span>{" "}
-                {slotDateFormat(item.slotDate)} | {item.slotTime}
+                {new Date(item.slotDate).toLocaleDateString("en-US", {
+                  weekday: "long",
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                })}
+                | {item.slotTime}
               </p>
             </div>
             <div></div>
