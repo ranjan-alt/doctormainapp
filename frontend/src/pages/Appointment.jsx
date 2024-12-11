@@ -254,12 +254,14 @@ const Appointment = () => {
                     : "border border-[#DDDDDD]"
                 }`}
               >
-                {/* <p>{slot.day}</p> */}
-                <p className="text-xs"> {slot.date}</p>
+                <p className="text-xs">{slot.day}</p>
+                {/* <p className="text-xs"> {slot.date}</p> */}
                 {/* <p className="text-xs">{new Date(slot.date).getDate()}</p> */}
-                {new Date(slot.day).toLocaleDateString("en-US", {
-                  weekday: "long",
-                })}
+                <p className="text-xs">
+                  {new Date(slot.day).toLocaleDateString("en-US", {
+                    weekday: "long",
+                  })}
+                </p>
               </div>
             ))}
         </div>
