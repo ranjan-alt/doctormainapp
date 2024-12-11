@@ -3,6 +3,9 @@ import { DoctorContext } from "../../context/DoctorContext";
 import { AppContext } from "../../context/AppContext";
 import { toast } from "react-toastify";
 import axios from "axios";
+import ReactDatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import DatePicker from "react-multi-date-picker";
 
 const DoctorProfile = () => {
   const { dToken, profileData, setProfileData, getProfileData } =
@@ -10,6 +13,9 @@ const DoctorProfile = () => {
   const { currency, backendUrl } = useContext(AppContext);
   const [isEdit, setIsEdit] = useState(false);
   const [newSlot, setNewSlot] = useState({ day: "", fromTime: "", toTime: "" });
+  const [selectedDates, setSelectedDates] = useState([]);
+  console.log(selectedDates, "selected");
+  const [editingSlotIndex, setEditingSlotIndex] = useState(null);
 
   const updateProfile = async () => {
     try {
@@ -45,34 +51,60 @@ const DoctorProfile = () => {
 
   // Add new slot to profile
   const addSlot = () => {
-    if (newSlot.day && newSlot.fromTime && newSlot.toTime) {
-      const slots = profileData?.slots || [];
+    if (!selectedDates.length) {
+      toast.error("Please select at least one date.");
+      return;
+    }
+    if (!newSlot.fromTime || !newSlot.toTime) {
+      toast.error("Please provide both from and to times.");
+      return;
+    }
 
-      // Ensure the slot has the correct structure
-      const updatedSlot = {
-        day: newSlot.day,
-        fromTime: newSlot.fromTime,
-        toTime: newSlot.toTime,
-      };
+    const slots = profileData?.slots || [];
+    const updatedSlots = [...slots];
+
+    // Iterate over selectedDates and create a slot for each date
+    selectedDates.forEach((date) => {
+      const day = date.format("YYYY-MM-DD"); // Format date as needed
 
       const isSlotExist = slots.some(
         (slot) =>
-          slot.day === newSlot.day &&
+          slot.day === day &&
           slot.fromTime === newSlot.fromTime &&
           slot.toTime === newSlot.toTime
       );
 
-      if (isSlotExist) {
-        toast.error("Slot already exists!");
-        return;
+      if (!isSlotExist) {
+        updatedSlots.push({
+          day,
+          fromTime: newSlot.fromTime,
+          toTime: newSlot.toTime,
+        });
       }
+    });
 
-      const updatedSlots = [...slots, updatedSlot];
-      setProfileData((prev) => ({ ...prev, slots: updatedSlots }));
-      setNewSlot({ day: "", fromTime: "", toTime: "" });
-    } else {
-      toast.error("Please provide both day and time.");
-    }
+    // Update profile data with new slots
+    setProfileData((prev) => ({ ...prev, slots: updatedSlots }));
+
+    // Clear the selected dates and time inputs
+    setSelectedDates([]);
+    setNewSlot({ day: "", fromTime: "", toTime: "" });
+
+    toast.success("Slots added successfully!");
+  };
+
+  const saveSlotEdit = (index, updatedSlot) => {
+    const updatedSlots = [...profileData.slots];
+    updatedSlots[index] = updatedSlot;
+    setProfileData((prev) => ({ ...prev, slots: updatedSlots }));
+    setEditingSlotIndex(null);
+    toast.success("Slot updated successfully!");
+  };
+
+  const deleteSlot = (index) => {
+    const updatedSlots = profileData.slots.filter((_, i) => i !== index);
+    setProfileData((prev) => ({ ...prev, slots: updatedSlots }));
+    toast.success("Slot deleted successfully!");
   };
   useEffect(() => {
     if (dToken) {
@@ -91,7 +123,17 @@ const DoctorProfile = () => {
     });
     console.log(transformedSlots);
   }, [dToken]);
-
+  const handleDateChange = (date) => {
+    if (selectedDates.some((d) => d.getTime() === date.getTime())) {
+      // Remove date if already selected
+      setSelectedDates(
+        selectedDates.filter((d) => d.getTime() !== date.getTime())
+      );
+    } else {
+      // Add new date
+      setSelectedDates([...selectedDates, date]);
+    }
+  };
   return (
     profileData && (
       <div className="w-full">
@@ -218,100 +260,119 @@ const DoctorProfile = () => {
             {/* Display and edit slots */}
             {isEdit && (
               <div className="mt-4 space-y-4">
-                <div className="mt-4 flex items-center space-x-4">
-                  {/* Day Dropdown */}
-                  <div className="flex flex-col space-y-1 w-32">
-                    <label
-                      htmlFor="day"
-                      className="text-sm font-medium text-gray-700"
-                    >
-                      Select Day
-                    </label>
-                    <select
-                      id="day"
-                      value={newSlot.day}
-                      onChange={(e) =>
-                        setNewSlot((prev) => ({ ...prev, day: e.target.value }))
-                      }
-                      className="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                    >
-                      <option value="">Select Day</option>
-                      <option value="Sunday">Sunday</option>
-                      <option value="Monday">Monday</option>
-                      <option value="Tuesday">Tuesday</option>
-                      <option value="Wednesday">Wednesday</option>
-                      <option value="Thursday">Thursday</option>
-                      <option value="Friday">Friday</option>
-                      <option value="Saturday">Saturday</option>
-                    </select>
-                  </div>
+                <DatePicker
+                  multiple
+                  value={selectedDates}
+                  onChange={setSelectedDates}
+                  format="YYYY-MM-DD"
+                  className="custom-datepicker"
+                />
 
-                  {/* From Time */}
-                  <div className="flex flex-col space-y-1 w-32">
-                    <label
-                      htmlFor="fromTime"
-                      className="text-sm font-medium text-gray-700"
-                    >
-                      From Time
-                    </label>
-                    <input
-                      type="time"
-                      id="fromTime"
-                      value={newSlot.fromTime}
-                      onChange={(e) =>
-                        setNewSlot((prev) => ({
-                          ...prev,
-                          fromTime: e.target.value,
-                        }))
-                      }
-                      className="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                    />
-                  </div>
-
-                  {/* To Time */}
-                  <div className="flex flex-col space-y-1 w-32">
-                    <label
-                      htmlFor="toTime"
-                      className="text-sm font-medium text-gray-700"
-                    >
-                      To Time
-                    </label>
-                    <input
-                      type="time"
-                      id="toTime"
-                      value={newSlot.toTime}
-                      onChange={(e) =>
-                        setNewSlot((prev) => ({
-                          ...prev,
-                          toTime: e.target.value,
-                        }))
-                      }
-                      className="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                    />
-                  </div>
-
-                  {/* Add Slot Button */}
-                  <button
-                    onClick={addSlot}
-                    className="py-2 px-4 bg-blue-500 text-white font-semibold rounded-md hover:bg-blue-600 transition duration-200 ease-in-out"
-                  >
-                    Add Slot
-                  </button>
+                <div className="flex gap-4">
+                  <input
+                    type="time"
+                    value={newSlot.fromTime}
+                    onChange={(e) =>
+                      setNewSlot((prev) => ({
+                        ...prev,
+                        fromTime: e.target.value,
+                      }))
+                    }
+                  />
+                  <input
+                    type="time"
+                    value={newSlot.toTime}
+                    onChange={(e) =>
+                      setNewSlot((prev) => ({
+                        ...prev,
+                        toTime: e.target.value,
+                      }))
+                    }
+                  />
                 </div>
 
-                <div className="mt-4">
-                  <p>Existing Slots:</p>
-                  <ul>
-                    {profileData?.slots?.map((slot, index) => (
-                      <li key={index}>
-                        {slot.day} - {slot.fromTime} to {slot.toTime}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+                <button
+                  onClick={addSlot}
+                  className="py-2 px-4 bg-blue-500 text-white font-semibold rounded-md hover:bg-blue-600"
+                >
+                  Add Slot
+                </button>
               </div>
             )}
-
+            <div className="mt-4">
+              <p className="font-medium">Existing Slots:</p>
+              <ul>
+                {profileData?.slots?.map((slot, index) => {
+                  const isEditing = editingSlotIndex === index;
+                  return (
+                    <li key={index} className="flex items-center gap-4 text-sm">
+                      {isEditing ? (
+                        <>
+                          <input
+                            type="date"
+                            value={slot.day}
+                            onChange={(e) =>
+                              saveSlotEdit(index, {
+                                ...slot,
+                                day: e.target.value,
+                              })
+                            }
+                          />
+                          <input
+                            type="time"
+                            value={slot.fromTime}
+                            onChange={(e) =>
+                              saveSlotEdit(index, {
+                                ...slot,
+                                fromTime: e.target.value,
+                              })
+                            }
+                          />
+                          <input
+                            type="time"
+                            value={slot.toTime}
+                            onChange={(e) =>
+                              saveSlotEdit(index, {
+                                ...slot,
+                                toTime: e.target.value,
+                              })
+                            }
+                          />
+                          <button
+                            onClick={() => setEditingSlotIndex(null)}
+                            className="text-blue-500"
+                          >
+                            Cancel
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          <span>
+                            {slot.day} - {slot.fromTime} to {slot.toTime}
+                          </span>
+                          {isEdit && (
+                            <>
+                              <button
+                                onClick={() => setEditingSlotIndex(index)}
+                                className="text-blue-500"
+                              >
+                                Edit
+                              </button>
+                              <button
+                                onClick={() => deleteSlot(index)}
+                                className="text-red-500 ml-2"
+                              >
+                                Delete
+                              </button>
+                            </>
+                          )}
+                        </>
+                      )}
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
             {isEdit ? (
               <button
                 onClick={updateProfile}

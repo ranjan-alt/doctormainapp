@@ -99,7 +99,7 @@ const Appointment = () => {
       orderedSlots.forEach((slot) => {
         const slotDayIndex = daysOfWeek.indexOf(slot.day.toUpperCase());
         const slotDate = getDateForDay(slotDayIndex);
-
+        console.log("Slot Date:", slot.date, "Parsed:", new Date(slot.date));
         // Get booked slots for this day
         const bookedSlots = docInfo.slots_booked?.[slot.day] || [];
 
@@ -256,6 +256,10 @@ const Appointment = () => {
               >
                 <p>{slot.day}</p>
                 <p className="text-xs"> {slot.date}</p>
+                {/* <p className="text-xs">{new Date(slot.date).getDate()}</p> */}
+                {new Date(slot.day).toLocaleDateString("en-US", {
+                  weekday: "long",
+                })}
               </div>
             ))}
         </div>
