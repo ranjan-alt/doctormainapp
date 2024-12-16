@@ -12,6 +12,7 @@ const DoctorDashboard = () => {
     getDashData,
     cancelAppointment,
     completeAppointment,
+    formatSlotDate,
   } = useContext(DoctorContext);
   const { slotDateFormat, currency } = useContext(AppContext);
 
@@ -75,7 +76,9 @@ const DoctorDashboard = () => {
                   <p className="text-gray-800 font-medium">
                     {item.userData.name}
                   </p>
-                  <p className="text-gray-600 ">Booking on {item.slotDate}</p>
+                  <p className="text-gray-600 ">
+                    Booking on {formatSlotDate(item.slotDate)}
+                  </p>
                 </div>
                 {item.cancelled ? (
                   <p className="text-red-400 text-xs font-medium">Cancelled</p>

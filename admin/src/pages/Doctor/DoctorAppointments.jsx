@@ -11,6 +11,7 @@ const DoctorAppointments = () => {
     getAppointments,
     cancelAppointment,
     completeAppointment,
+    formatSlotDate,
   } = useContext(DoctorContext);
   const { slotDateFormat, calculateAge, currency } = useContext(AppContext);
 
@@ -55,7 +56,7 @@ const DoctorAppointments = () => {
             </div>
             <p className="max-sm:hidden">{calculateAge(item.userData.dob)}</p>
             <p>
-              {item.slotDate}, {item.slotTime}
+              {formatSlotDate(item.slotDate)}, {item.slotTime}
             </p>
             <p>
               {currency}
