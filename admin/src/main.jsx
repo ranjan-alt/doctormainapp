@@ -7,6 +7,7 @@ import AdminContextProvider from "./context/AdminContext.jsx";
 import DoctorContextProvider from "./context/DoctorContext.jsx";
 import AppContextProvider from "./context/AppContext.jsx";
 import { HospitalProvider } from "./context/HospitalContext.jsx";
+import SugeriesContextProvider from "./context/SurgeriesContext.jsx";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <BrowserRouter>
@@ -14,7 +15,9 @@ ReactDOM.createRoot(document.getElementById("root")).render(
       <DoctorContextProvider>
         <AppContextProvider>
           <HospitalProvider>
-            <App />
+            <SugeriesContextProvider>
+              <App />
+            </SugeriesContextProvider>
           </HospitalProvider>
         </AppContextProvider>
       </DoctorContextProvider>

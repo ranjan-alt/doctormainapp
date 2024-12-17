@@ -26,23 +26,27 @@ const Navbar = () => {
       />
       <ul className="md:flex items-start gap-5 font-medium hidden">
         <NavLink to="/">
-          <li className="py-1">HOME</li>
+          <li className="py-1">Home</li>
           <hr className="border-none outline-none h-0.5 bg-[#2563eb] w-3/5 m-auto hidden" />
         </NavLink>
         <NavLink to="/doctors">
-          <li className="py-1">ALL DOCTORS</li>
+          <li className="py-1">All Doctors</li>
+          <hr className="border-none outline-none h-0.5 bg-[#2563eb] w-3/5 m-auto hidden" />
+        </NavLink>
+        <NavLink to="/surgeries">
+          <li className="py-1">Surgeries</li>
           <hr className="border-none outline-none h-0.5 bg-[#2563eb] w-3/5 m-auto hidden" />
         </NavLink>
         <NavLink to="/medical-insurance">
-          <li className="py-1">INSURANCE</li>
+          <li className="py-1">Insurance</li>
           <hr className="border-none outline-none h-0.5 bg-[#2563eb] w-3/5 m-auto hidden" />
         </NavLink>
         <NavLink to="/about">
-          <li className="py-1">ABOUT</li>
+          <li className="py-1">About</li>
           <hr className="border-none outline-none h-0.5 bg-[#2563eb] w-3/5 m-auto hidden" />
         </NavLink>
         <NavLink to="/contact">
-          <li className="py-1">CONTACT</li>
+          <li className="py-1">Contact</li>
           <hr className="border-none outline-none h-0.5 bg-[#2563eb] w-3/5 m-auto hidden" />
         </NavLink>
       </ul>
@@ -108,6 +112,9 @@ const Navbar = () => {
             </NavLink>
             <NavLink onClick={() => setShowMenu(false)} to="/doctors">
               <p className="px-4 py-2 rounded full inline-block">ALL DOCTORS</p>
+            </NavLink>
+            <NavLink onClick={() => setShowMenu(false)} to="/surgeries">
+              <p className="px-4 py-2 rounded full inline-block">SURGERIES</p>
             </NavLink>
             <NavLink onClick={() => setShowMenu(false)} to="/medical-insurance">
               <p className="px-4 py-2 rounded full inline-block">INSURANCE</p>

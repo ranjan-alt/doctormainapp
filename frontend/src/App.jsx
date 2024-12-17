@@ -15,6 +15,7 @@ import "react-toastify/dist/ReactToastify.css";
 import Verify from "./pages/Verify";
 import MedicalInsuranceList from "./pages/MedicalInsurance";
 import ResetPassword from "./pages/ResetPassword";
+import Surgeries from "./pages/Surgeries";
 
 const App = () => {
   return (
@@ -37,6 +38,7 @@ const App = () => {
         <Route path="/my-profile" element={<MyProfile />} />
         <Route path="/verify" element={<Verify />} />
         <Route path="/medical-insurance" element={<MedicalInsuranceList />} />
+        <Route path="/surgeries" element={<Surgeries />} />
       </Routes>
       <Footer />
     </div>
