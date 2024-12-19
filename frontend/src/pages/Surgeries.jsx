@@ -3,15 +3,8 @@ import { useContext } from "react";
 import { SurgeryContext } from "../context/SurgeryContext";
 import { useState } from "react";
 const Surgeries = () => {
-  // const { surgeries, getSurgeries } = useContext(SurgeryContext);
-  // console.log(surgeries, "data");
-
-  const [formData, setFormData] = useState({
-    city: "",
-    surgery: "",
-    name: "",
-    phone: "",
-  });
+  const { handleSubmitSurgeryQueries, handleChange, formData, setFormData } =
+    useContext(SurgeryContext);
 
   const surgeriesAndProcedures = [
     {
@@ -180,15 +173,6 @@ const Surgeries = () => {
     },
   ];
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    alert("Appointment Booked!");
-  };
-
   return (
     <div className="min-h-screen bg-gray-100 p-5 md:p-10">
       <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -222,7 +206,7 @@ const Surgeries = () => {
           <h2 className="text-xl font-semibold mb-4">
             Book your consultation today
           </h2>
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmitSurgeryQueries} className="space-y-4">
             {/* City Select */}
             <div>
               <label className="block mb-2 text-sm font-medium text-gray-600">
@@ -327,7 +311,7 @@ const Surgeries = () => {
           </form>
           {/* Terms */}
           <p className="text-xs text-center mt-3 text-gray-500">
-            By submitting the form, you agree to Practo's{" "}
+            By submitting the form, you agree to medicare{" "}
             <a href="#" className="text-blue-600">
               T&C
             </a>
