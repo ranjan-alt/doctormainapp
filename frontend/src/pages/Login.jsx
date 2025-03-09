@@ -62,6 +62,13 @@ const Login = () => {
     if (token) {
       navigate("/");
     }
+    // Prevent redirect if user is on the reset password page
+    if (
+      token &&
+      window.location.pathname !== "/frontend/requestPasswordReset"
+    ) {
+      navigate("/");
+    }
   }, [token]);
 
   return (
