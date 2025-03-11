@@ -2,27 +2,30 @@ import React, { useContext, useEffect, useState } from "react";
 import { AppContext } from "../context/AppContext";
 import { useNavigate, useParams } from "react-router-dom";
 
+import {
+  CitySelect,
+  CountrySelect,
+  StateSelect,
+} from "react-country-state-city";
+import "react-country-state-city/dist/react-country-state-city.css";
+
 const Doctors = () => {
   const { speciality } = useParams();
 
   const [filterDoc, setFilterDoc] = useState([]);
   const [showFilter, setShowFilter] = useState(false);
   const [searchQuery, setSearchQuery] = useState(""); // State for search query
-  const [locationQuery, setLocationQuery] = useState("");
-  console.log(locationQuery, "12");
-  const [locations, setLocations] = useState([]);
+
+  const [country, setCountry] = useState(null);
+  const [state, setState] = useState(null);
+  const [city, setCity] = useState(null);
 
   const navigate = useNavigate();
 
   const { doctors } = useContext(AppContext);
   console.log(doctors, "doctorslist");
-  // Extract unique locations from the doctors list
-  useEffect(() => {
-    if (doctors.length > 0) {
-      const uniqueCountries = [...new Set(doctors.map((doc) => doc.country))];
-      setLocations(uniqueCountries);
-    }
-  }, [doctors]);
+
+  ///filters section
   const applyFilter = () => {
     let filteredDoctors = doctors;
     if (speciality) {
@@ -38,9 +41,22 @@ const Doctors = () => {
           doc.speciality.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
-    if (locationQuery) {
+
+    if (country) {
       filteredDoctors = filteredDoctors.filter(
-        (doc) => doc.country?.toLowerCase() === locationQuery.toLowerCase()
+        (doc) => doc.country?.toLowerCase() === country.name.toLowerCase()
+      );
+    }
+
+    if (state) {
+      filteredDoctors = filteredDoctors.filter(
+        (doc) => doc.state?.toLowerCase() === state.name.toLowerCase()
+      );
+    }
+
+    if (city) {
+      filteredDoctors = filteredDoctors.filter(
+        (doc) => doc.city?.toLowerCase() === city.name.toLowerCase()
       );
     }
     setFilterDoc(filteredDoctors);
@@ -48,21 +64,16 @@ const Doctors = () => {
 
   useEffect(() => {
     applyFilter();
-  }, [doctors, speciality, searchQuery, locationQuery]);
-  console.log("Filter Applied with:", {
-    speciality,
-    searchQuery,
-    locationQuery,
-  });
+  }, [doctors, speciality, searchQuery, country, state, city]);
 
   return (
     <div>
       <p className="text-gray-600">Browse through the doctors specialist.</p>
       {/* Search bar */}
       <div className="w-full max-w-lg min-w-full">
-        <div className="relative flex items-center border border-slate-200 rounded-md shadow-sm">
+        <div className="relative flex flex-col sm:flex-row items-center border border-slate-200 rounded-md shadow-sm p-2 gap-2">
           {/* Doctor Search Section */}
-          <div className="flex items-center w-full border-r border-slate-200">
+          <div className="flex items-center w-full sm:w-auto border-r sm:border-r border-slate-200 px-2">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 24 24"
@@ -79,35 +90,39 @@ const Doctors = () => {
             />
           </div>
 
-          {/* Location Search Section */}
-          <div className="flex items-center w-full">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-              className="w-5 h-5 ml-3 text-slate-600  left-3 pointer-events-none"
-            >
-              <path d="M12 2C8.1 2 5 5.1 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.9-3.1-7-7-7Zm0 9.75c-1.65 0-3-1.35-3-3s1.35-3 3-3 3 1.35 3 3-1.35 3-3 3Z" />
-            </svg>
-            <select
-              value={locationQuery}
-              onChange={(e) => setLocationQuery(e.target.value)}
-              className="w-full bg-transparent text-slate-700 text-sm px-3 py-2 focus:outline-none"
-            >
-              <option value="" disabled hidden>
-                Select Location
-              </option>{" "}
-              {/* Ensures "Select Location" isn't selectable */}
-              {locations.map((loc, index) => (
-                <option key={index} value={loc}>
-                  {loc}
-                </option>
-              ))}
-            </select>
+          {/* search by country state and city */}
+          <div className="flex flex-col sm:flex-row items-center w-full sm:w-auto gap-2">
+            <CountrySelect
+              containerClassName="w-full sm:w-auto"
+              inputClassName=""
+              onChange={(_country) => setCountry(_country)}
+              onTextChange={(_txt) => console.log(_txt)}
+              placeHolder="Select Country"
+            />
+            <StateSelect
+              countryid={country?.id}
+              containerClassName="w-full sm:w-auto"
+              inputClassName=""
+              onChange={(_state) => setState(_state)}
+              onTextChange={(_txt) => console.log(_txt)}
+              defaultValue={state}
+              placeHolder="Select State"
+            />
+            <CitySelect
+              countryid={country?.id}
+              stateid={state?.id}
+              containerClassName="w-full sm:w-auto"
+              inputClassName=""
+              onChange={(_city) => setCity(_city)}
+              onTextChange={(_txt) => console.log(_txt)}
+              defaultValue={city}
+              placeHolder="Select City"
+            />
           </div>
-          <div className="flex items-center w-full">
+          {/* search by specialisation */}
+          <div className="w-full sm:w-auto">
             <select
-              className="w-full bg-transparent text-slate-700 text-sm px-3 py-2 focus:outline-none"
+              className="w-full bg-transparent text-slate-700 text-sm px-3 py-2 focus:outline-none border border-gray-300 rounded"
               onChange={(e) => setSearchQuery(e.target.value)} // Use searchQuery for filtering
               value={searchQuery}
             >
@@ -239,23 +254,27 @@ const Doctors = () => {
                     }`}
                   ></p>
                   <p>{item.available ? "Available" : "Not Available"}</p>
-                  {item?.country && (
-                    <p className="text-[#5C5C5C] text-sm">
-                      <img
-                        src={item?.flag}
-                        alt={item?.country}
-                        width="30"
-                        height="20"
-                        className="inline-block mr-2"
-                      />
-                      {item?.country}
+                </div>
+                <div className="flex gap-x-4">
+                  <div className="flex flex-col">
+                    <p className="text-[#262626] text-lg font-medium">
+                      {item.name}
                     </p>
+                    <p className="text-[#5C5C5C] text-sm">{item.speciality}</p>
+                  </div>
+
+                  {item?.country && (
+                    <div className="text-gray-600 text-sm flex flex-col">
+                      <p className="font-medium">{item.country}</p>
+                      {item.state && (
+                        <p className="text-gray-500">{item.state}</p>
+                      )}
+                      {item.city && (
+                        <p className="text-gray-400">{item.city}</p>
+                      )}
+                    </div>
                   )}
                 </div>
-                <p className="text-[#262626] text-lg font-medium">
-                  {item.name}
-                </p>
-                <p className="text-[#5C5C5C] text-sm">{item.speciality}</p>
               </div>
             </div>
           ))}

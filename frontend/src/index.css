@@ -21,3 +21,6 @@
 ::-webkit-scrollbar {
   @apply hidden;
 }
+.stdropdown-container {
+  border: none !important;
+}
