@@ -17,6 +17,7 @@ import DoctorProfile from "./pages/Doctor/DoctorProfile";
 import HospitalList from "./pages/Admin/HospitalList";
 import SurgeryList from "./pages/Admin/SurgeryList";
 import EmployeeList from "./pages/Admin/EmployeeList";
+import RegisterUser from "./pages/employee/RegisterUser";
 
 const App = () => {
   const { dToken } = useContext(DoctorContext);
@@ -40,6 +41,7 @@ const App = () => {
           <Route path="/hospital-list" element={<HospitalList />} />
           <Route path="/surgery-list" element={<SurgeryList />} />
           <Route path="/employee-list" element={<EmployeeList />} />
+          <Route path="/register-user" element={<RegisterUser />} />
         </Routes>
       </div>
     </div>
