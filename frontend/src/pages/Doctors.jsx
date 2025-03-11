@@ -19,17 +19,8 @@ const Doctors = () => {
   // Extract unique locations from the doctors list
   useEffect(() => {
     if (doctors.length > 0) {
-      const uniqueLocations = [
-        ...new Set(
-          doctors.map((doc) =>
-            `${doc.address?.line1 || ""}, ${doc.address?.line2 || ""}`
-              .replace(/,\s*$/, "") // Remove trailing commas
-              .trim()
-          )
-        ),
-      ];
-      console.log("Unique Locations:", locations);
-      setLocations(uniqueLocations);
+      const uniqueCountries = [...new Set(doctors.map((doc) => doc.country))];
+      setLocations(uniqueCountries);
     }
   }, [doctors]);
   const applyFilter = () => {
@@ -48,18 +39,9 @@ const Doctors = () => {
       );
     }
     if (locationQuery) {
-      const normalizedQuery = locationQuery.trim().toLowerCase();
-      filteredDoctors = filteredDoctors.filter((doc) => {
-        const fullAddress = `${doc.address?.line1 || ""}, ${
-          doc.address?.line2 || ""
-        }`
-          .replace(/\s+/g, " ") // Normalize spaces
-          .replace(/,\s*$/, "") // Remove trailing commas
-          .trim()
-          .toLowerCase();
-        console.log("Filtering Address:", { fullAddress, normalizedQuery });
-        return fullAddress.includes(normalizedQuery);
-      });
+      filteredDoctors = filteredDoctors.filter(
+        (doc) => doc.country?.toLowerCase() === locationQuery.toLowerCase()
+      );
     }
     setFilterDoc(filteredDoctors);
   };
@@ -109,10 +91,13 @@ const Doctors = () => {
             </svg>
             <select
               value={locationQuery}
-              onChange={(e) => setLocationQuery(e.target.value)} // Update locationQuery state
+              onChange={(e) => setLocationQuery(e.target.value)}
               className="w-full bg-transparent text-slate-700 text-sm px-3 py-2 focus:outline-none"
             >
-              <option value="">Select Location</option>
+              <option value="" disabled hidden>
+                Select Location
+              </option>{" "}
+              {/* Ensures "Select Location" isn't selectable */}
               {locations.map((loc, index) => (
                 <option key={index} value={loc}>
                   {loc}
@@ -254,6 +239,18 @@ const Doctors = () => {
                     }`}
                   ></p>
                   <p>{item.available ? "Available" : "Not Available"}</p>
+                  {item?.country && (
+                    <p className="text-[#5C5C5C] text-sm">
+                      <img
+                        src={item?.flag}
+                        alt={item?.country}
+                        width="30"
+                        height="20"
+                        className="inline-block mr-2"
+                      />
+                      {item?.country}
+                    </p>
+                  )}
                 </div>
                 <p className="text-[#262626] text-lg font-medium">
                   {item.name}

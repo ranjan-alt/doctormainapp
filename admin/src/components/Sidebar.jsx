@@ -86,7 +86,7 @@ const Sidebar = () => {
               }`
             }
           >
-            <img className="min-w-5" src={assets.patients_icon} alt="" />
+            <img className="min-w-5" src={assets.hospital_icon} alt="" />
             <p className="hidden md:block">Employee List</p>
           </NavLink>
         </ul>

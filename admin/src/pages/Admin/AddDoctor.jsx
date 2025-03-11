@@ -5,6 +5,17 @@ import axios from "axios";
 import { AdminContext } from "../../context/AdminContext";
 import { AppContext } from "../../context/AppContext";
 
+import {
+  CitySelect,
+  CountrySelect,
+  StateSelect,
+  LanguageSelect,
+  RegionSelect,
+  PhonecodeSelect,
+} from "react-country-state-city";
+import "react-country-state-city/dist/react-country-state-city.css";
+console.log(CountrySelect, StateSelect, CitySelect, "main");
+
 const AddDoctor = () => {
   const [docImg, setDocImg] = useState(false);
   const [name, setName] = useState("");
@@ -17,6 +28,9 @@ const AddDoctor = () => {
   const [degree, setDegree] = useState("");
   const [address1, setAddress1] = useState("");
   const [address2, setAddress2] = useState("");
+  const [country, setCountry] = useState("");
+  const [state, setState] = useState("");
+  const [city, setCity] = useState("");
 
   const { backendUrl } = useContext(AppContext);
   const { aToken } = useContext(AdminContext);
@@ -40,15 +54,13 @@ const AddDoctor = () => {
       formData.append("about", about);
       formData.append("speciality", speciality);
       formData.append("degree", degree);
+      formData.append("country", country.name);
+      formData.append("state", state.name);
+      formData.append("city", city.name);
       formData.append(
         "address",
         JSON.stringify({ line1: address1, line2: address2 })
       );
-
-      // console log formdata
-      formData.forEach((value, key) => {
-        console.log(`${key}: ${value}`);
-      });
 
       const { data } = await axios.post(
         backendUrl + "/api/admin/add-doctor",
@@ -66,6 +78,9 @@ const AddDoctor = () => {
         setDegree("");
         setAbout("");
         setFees("");
+        setCountry("");
+        setState("");
+        setCity("");
       } else {
         toast.error(data.message);
       }
@@ -198,7 +213,50 @@ const AddDoctor = () => {
                 required
               />
             </div>
+            <div className="flex flex-col gap-4">
+              <div className="flex flex-col gap-1">
+                <p>Country</p>
+                <CountrySelect
+                  containerClassName="form-group"
+                  inputClassName=""
+                  onChange={(_country) => setCountry(_country)}
+                  onTextChange={(_txt) => console.log(_txt)}
+                  placeHolder="Select Country"
+                  className="border rounded px-2 py-2"
+                />
+              </div>
 
+              <div className="flex flex-col gap-1">
+                <p>State</p>
+                <StateSelect
+                  countryid={country?.id}
+                  containerClassName="form-group"
+                  inputClassName=""
+                  onChange={(_state) => setState(_state)}
+                  onTextChange={(_txt) => console.log(_txt)}
+                  defaultValue={state}
+                  placeHolder="Select State" // Use selectedCountry instead of manually finding it
+                  className="border rounded px-2 py-2"
+                />
+              </div>
+
+              <div className="flex flex-col gap-1">
+                <p>City</p>
+
+                <CitySelect
+                  countryid={country?.id}
+                  stateid={state?.id}
+                  containerClassName="form-group"
+                  inputClassName=""
+                  onChange={(_city) => setCity(_city)}
+                  onTextChange={(_txt) => console.log(_txt)}
+                  defaultValue={city}
+                  placeHolder="Select City"
+                  stateCode={state}
+                  className="border rounded px-2 py-2"
+                />
+              </div>
+            </div>
             <div className="flex-1 flex flex-col gap-1">
               <p>Address</p>
               <input

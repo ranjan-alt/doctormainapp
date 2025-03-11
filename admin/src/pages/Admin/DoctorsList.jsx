@@ -28,6 +28,20 @@ const DoctorsList = () => {
             <div className="p-4">
               <p className="text-[#262626] text-lg font-medium">{item.name}</p>
               <p className="text-[#5C5C5C] text-sm">{item.speciality}</p>
+              <p className="text-[#5C5C5C] text-sm">
+                {item?.country && (
+                  <p className="text-[#5C5C5C] text-sm">
+                    <img
+                      src={item?.flag}
+                      alt={item?.country}
+                      width="30"
+                      height="20"
+                      className="inline-block mr-2"
+                    />
+                    {item?.country}
+                  </p>
+                )}
+              </p>
               <div className="mt-2 flex items-center gap-1 text-sm">
                 <input
                   onChange={() => changeAvailability(item._id)}
